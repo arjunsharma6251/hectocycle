@@ -60,12 +60,35 @@ The failure mode is precise: `avg_chargetime_first5` is 7–11 *minutes* in Seve
 
 **Consequence for the cockpit:** the production early-call should use protocol-invariant features (ΔQ(V) statistics) or, at minimum, refuse to emit a verdict when any covariate lies outside the training envelope. Confident extrapolation on protocol features is exactly the failure the KEEP-TESTING abstain rule exists to prevent — but abstention can't trigger on inputs the model was never taught to distrust.
 
+## 6. The abstain rule as a cycler-allocation policy
+
+A verdict only matters if it changes what the lab does. The natural action is to pull a cell off the cycler the moment its verdict is callable, so this section scores the abstain rule as a *stopping policy* against the conventional qualification test (`scripts/allocation_policy.py`, pure arithmetic over the per-cutoff intervals in the cockpit bundle — no refit).
+
+**Baseline ("run to spec"):** every cell cycles until the spec question answers itself — a fail cell runs to end of life, a pass cell runs to T = 700 and is confirmed. Cost = min(life, T) cycles per cell. **Policies:** at each checkpoint (40, 50, 60, 80, 100 cycles) the model is refit on data truncated there; *first-call* pulls the cell at the first checkpoint whose interval clears the 0.5 line, *confirmed-call* waits until the same verdict holds at two consecutive checkpoints. Cells never called by cycle 100 fall back to the baseline. Cycles are converted to cycler-hours with each cell's own measured cycle duration from the raw batch files (median 49 min, range 39–60).
+
+| Policy | Cells pulled early | Wrong verdicts | Cycler-hours (baseline → policy) | Saved |
+|---|---|---|---|---|
+| single look @40 | 62/83 (75%) | 0 | 42,378 → 13,105 | 71% |
+| single look @50 | 58/83 (70%) | 1 | 42,378 → 15,241 | 67% |
+| single look @60 | 54/83 (65%) | 1 | 42,378 → 17,891 | 60% |
+| single look @80 | 59/83 (71%) | 1 | 42,378 → 16,601 | 63% |
+| single look @100 | 61/83 (73%) | 0 | 42,378 → 16,507 | 64% |
+| first-call (sequential) | 73/83 (88%) | **2** | 42,378 → 7,893 | 82% |
+| **confirmed-call (sequential)** | **60/83 (72%)** | **0** | **42,378 → 14,925** | **67%** |
+
+**Result:** the confirmed-call policy frees 60 of 83 channels — 52 of them at cycle 50, about two days into a test that otherwise runs three weeks — with zero wrong verdicts, and cuts cycler occupancy for this fleet by 67% (27,450 cycler-hours, ~1,140 channel-days). Savings split 28,590 cycles on true-pass cells (the expensive ones: they would otherwise run all the way to T) and 6,745 on true-fail cells. The 23 cells left on the cycler are the near-threshold band the abstain rule exists for.
+
+**The multiple-look problem is real, not theoretical.** The greedy first-call rule saves more (82%) but ships two wrong verdicts: b1c37 (life 648, true fail) cleared the line as a pass at cycle 50, and b1c41 (life 1051, true pass) cleared it as a fail at cycle 60 — each is the one wrong single-look call at its cutoff, and a sequential policy that acts on the first clearance collects both. Requiring agreement at two consecutive checkpoints removes both at a cost of 15 points of savings. The single look at cycle 40 happens to be error-free and slightly cheaper than confirmed-call, but on n = 83 one error either way is inside the noise; the confirmation rule is the one whose safety does not depend on which checkpoint got lucky (`figures/allocation_policy.png`).
+
+Caveats: the baseline assumes qualification stops at T for pass cells (running everything to EOL would roughly double the baseline and the savings); the policy is scored retrospectively on the same 83 test cells as sections 3–4, so this is an estimate of the policy's value, not a prospective trial; and it inherits the secondary-test caveat above — batch 3 barely exercises the fail class.
+
 ## Reproduce
 
 ```
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
 # place the three .mat batch files in data/ (URLs in the build brief; ~9 GB)
 .venv/bin/jupyter nbconvert --to notebook --execute --inplace notebooks/early_call_study.ipynb
+.venv/bin/python scripts/allocation_policy.py   # section 6: runs off the cockpit bundle, no refit
 ```
 
 First run parses the .mat files (~2 min) into `data/processed_slim.pkl`; subsequent runs take ~3 min (the calibration bake-off dominates).
