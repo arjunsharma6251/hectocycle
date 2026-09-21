@@ -3,73 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hectocycle — cell qualification cockpit</title>
-<meta name="description" content="Tells you which battery cells will pass their life test — from the first 100 cycles, with honest confidence. Calibrated early calls, Venn-ABERS intervals, and chemistry-aware degradation diagnostics.">
+<title>Hectocycle</title>
+<meta name="description" content="Tells you which battery cells will pass their life test from the first 100 cycles, with honest confidence: calibrated early calls, Venn-ABERS intervals, an explicit keep-testing verdict, and chemistry-aware degradation diagnostics.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hectocycle — call battery qualification months early">
-<meta property="og:description" content="Reads the first 100 cycles of a cell's life test and tells you which cells you can already call — with honest, calibrated confidence. Try it on your own CSV, in the browser.">
+<meta property="og:title" content="Hectocycle: call battery qualification months early">
+<meta property="og:description" content="Reads the first 100 cycles of a cell's life test and tells you which cells you can already call, with honest, calibrated confidence. Try it on your own CSV, in the browser.">
 <meta property="og:url" content="https://hectocycle.com/">
 <meta property="og:image" content="https://hectocycle.com/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Hectocycle — call battery qualification months early">
+<meta name="twitter:title" content="Hectocycle: call battery qualification months early">
 <meta name="twitter:description" content="Calibrated early pass/fail calls from the first 100 cycles, honest uncertainty intervals, and degradation diagnostics. Try it on your own cell CSV.">
 <meta name="twitter:image" content="https://hectocycle.com/og.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='10' y='4' width='12' height='24' rx='3' fill='%23b0653a'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1a17'/%3E%3Cpath d='M6 16h20' stroke='%23f7f4ea' stroke-width='2'/%3E%3Cpath d='M12 8v16M20 12v10' stroke='%23f7f4ea' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='20' cy='12' r='3' fill='%23d1202f'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
-<header class="masthead">
-  <div class="masthead-title">
-    <div class="masthead-brand">
-      <span class="masthead-mark"></span>
-      <h1>HECTOCYCLE</h1>
-    </div>
-    <span class="masthead-tagline">Tells you which battery cells will pass their life test — from the first 100 cycles, with honest confidence.</span>
-    <span class="masthead-rev">cell qualification cockpit · Severson · Sandia · Oxford</span>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-flag" viewBox="0 0 12 14"><path d="M1.5 1v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M2.4 1.6h8.2l-2.6 3.2 2.6 3.2H2.4z" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cross" viewBox="0 0 14 14"><path d="M3.5 3.5l7 7M10.5 3.5l-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-help" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.2 6.4a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.9.7-.9 1.3v.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".9" fill="currentColor"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 16 16"><path d="M13 10.2A5.5 5.5 0 0 1 5.8 3a5.5 5.5 0 1 0 7.2 7.2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 14 14"><path d="M3 3l8 8M11 3l-8 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 20 20"><path d="M10 13V4M6 8l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12.5v3a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<a class="skip" href="#pane-fleet">Skip to the fleet</a>
+
+<header class="form-head">
+  <div class="brand">
+    <h1><a href="#" id="home-link">Hectocycle</a></h1>
+    <p class="premise">Tells you which battery cells will pass their life test from the first 100 cycles, and when it is honest to say <em>keep testing</em>.</p>
   </div>
-  <div class="masthead-right">
-    <button class="help-btn" id="help-btn" title="What is Hectocycle?" aria-label="Show introduction">?</button>
-    <button class="theme-toggle" id="theme-toggle" title="Theme: system" aria-label="Cycle color theme">◐</button>
-    <div class="masthead-tally" id="tally"><!-- filled by app.js --></div>
+  <nav class="form-tabs" role="tablist" aria-label="Sections">
+    <button class="tab active" id="tab-fleet" data-tab="fleet" role="tab" aria-selected="true" aria-controls="pane-fleet">Fleet</button>
+    <button class="tab" id="tab-gates" data-tab="gates" role="tab" aria-selected="false" aria-controls="pane-gates" tabindex="-1">Gates</button>
+    <button class="tab" id="tab-science" data-tab="science" role="tab" aria-selected="false" aria-controls="pane-science" tabindex="-1">Science</button>
+    <button class="tab" id="tab-try" data-tab="try" role="tab" aria-selected="false" aria-controls="pane-try" tabindex="-1">Try it</button>
+  </nav>
+  <div class="head-tools">
+    <button class="tool-btn" id="help-btn" aria-label="What is Hectocycle?" title="What is Hectocycle?"><svg width="16" height="16"><use href="#i-help"/></svg></button>
+    <button class="tool-btn" id="theme-toggle" aria-label="Switch to dark theme" title="Switch to dark theme"><svg width="16" height="16"><use href="#i-moon"/></svg></button>
   </div>
 </header>
 
-<nav class="tabs" role="tablist">
-  <button class="tab active" data-tab="fleet" role="tab" aria-selected="true">FLEET</button>
-  <button class="tab" data-tab="gates" role="tab" aria-selected="false">GATES</button>
-  <button class="tab" data-tab="science" role="tab" aria-selected="false">SCIENCE</button>
-  <button class="tab" data-tab="try" role="tab" aria-selected="false">TRY IT</button>
-  <div class="fleet-switch" id="fleet-switch">
-    <button class="seg active" data-fleet="qual">QUALIFICATION <span class="seg-sub">Severson LFP · 124</span></button>
-    <button class="seg" data-fleet="diag">DIAGNOSTICS <span class="seg-sub">SNL NCA/NMC/LFP · 61</span></button>
-  </div>
-  <div class="filters" id="filters"></div>
-</nav>
+<main>
+  <section class="pane" id="pane-fleet" role="tabpanel" aria-labelledby="tab-fleet" tabindex="-1">
+    <div class="chart-head">
+      <div class="fleet-switch" role="group" aria-label="Fleet">
+        <button class="seg active" data-fleet="qual" aria-pressed="true">Qualification</button>
+        <button class="seg" data-fleet="diag" aria-pressed="false">Diagnostics</button>
+      </div>
+      <p class="chart-title" id="chart-title"></p>
+      <p class="chart-source" id="chart-source"></p>
+    </div>
+    <div class="fleet-chart" id="fleet-chart" aria-label="Fleet control chart"></div>
+    <div class="disposition" id="disposition"></div>
 
-<main class="layout">
-  <section class="pane" id="pane-fleet" role="tabpanel">
-    <p class="fleet-caption" id="fleet-caption"></p>
-    <div class="queue-cards" id="queue-cards"></div>
-    <div class="table-wrap"><table class="fleet" id="fleet-table"></table></div>
+    <div class="log-wrap">
+      <div class="log">
+        <div class="log-head">
+          <h2 id="log-title">Data log</h2>
+          <div class="log-tools">
+            <span class="result-count" id="result-count" aria-live="polite"></span>
+            <label class="search-wrap"><span class="visually-hidden">Filter cells</span>
+              <input class="search" id="search" type="search" placeholder="Filter cells" autocomplete="off"></label>
+          </div>
+        </div>
+        <div class="table-wrap"><table class="fleet" id="fleet-table"></table></div>
+      </div>
+      <aside class="inspector" id="inspector" aria-labelledby="insp-title"></aside>
+    </div>
   </section>
 
-  <section class="pane hidden" id="pane-gates" role="tabpanel"></section>
-
-  <section class="pane hidden" id="pane-science" role="tabpanel"></section>
-
-  <section class="pane hidden" id="pane-try" role="tabpanel"></section>
-
-  <aside class="inspector" id="inspector" aria-live="polite">
-    <div class="inspector-empty">
-      <div class="inspector-empty-mark">◫</div>
-      <p>Select a cell to open its record.</p>
-    </div>
-  </aside>
+  <section class="pane hidden" id="pane-gates" role="tabpanel" aria-labelledby="tab-gates" tabindex="-1"></section>
+  <section class="pane hidden" id="pane-science" role="tabpanel" aria-labelledby="tab-science" tabindex="-1"></section>
+  <section class="pane hidden" id="pane-try" role="tabpanel" aria-labelledby="tab-try" tabindex="-1"></section>
 </main>
 
-<script src="app.js"></script>
+<dialog class="welcome" id="welcome" aria-labelledby="welcome-title">
+  <form method="dialog">
+    <p class="welcome-kicker-free" id="welcome-title" role="heading" aria-level="2">Call battery qualification months early.</p>
+    <p class="welcome-lead">Every cell here must survive 700 charge and discharge cycles to qualify, which is months of continuous testing. Hectocycle reads only the first 100 cycles and tells you which cells you can already call, and how sure it is allowed to be. Every verdict on this site is real model output scored against ground truth from three public aging studies.</p>
+    <ul class="welcome-outcomes" id="welcome-outcomes"></ul>
+    <div class="welcome-actions">
+      <button class="btn-primary" value="demo">See a worked example</button>
+      <button class="btn-quiet" value="explore">Explore on my own</button>
+      <button class="btn-quiet" value="try">Try your own CSV</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="sr-status" class="visually-hidden" aria-live="polite"></div>
+
+<script src="app.js?v=8"></script>
 </body>
 </html>

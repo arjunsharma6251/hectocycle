@@ -4,3 +4,4 @@ __pycache__/
 .ipynb_checkpoints/
 CLAUDE.md
 .DS_Store
+.impeccable/review/

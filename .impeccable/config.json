@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "app/static/index.html"
+        ],
+        "createdAt": "2026-09-21T14:54:50.418Z",
+        "reason": "user confirmed: on 2026-09-21 the user asked for a cream/off-white and green colour scheme with red reserved for alarms; recorded in the surface brief OWN-WORLD block"
+      }
+    ]
+  }
+}

@@ -85,6 +85,7 @@ def main():
                 f"{o.cell} (life {o.cycle_life:.0f}, true {'pass' if o.label else 'fail'}, "
                 f"called {'pass' if o.verdict else 'fail'} at cycle {o.stop_cycle:.0f})" for o in res.wrong))
     conf = next(r for r in results if r.name == "confirmed-call")
+    first = next(r for r in results if r.name == "first-call")
     sv = saved_by_class(conf)
     b, p = conf.hours(rate)
     print(f"\nconfirmed-call: cycles saved on true-pass cells {sv[1]:,.0f}, on true-fail cells {sv[0]:,.0f}; "
@@ -92,12 +93,37 @@ def main():
     stops = [o.stop_cycle for o in conf.outcomes if o.called_early]
     print("confirmed-call stop cycles:", {int(c): stops.count(c) for c in sorted(set(stops))})
 
+    # ---- write the policy summary into the cockpit bundle so the UI can show
+    # channel time (channels freed, cycler-hours saved) from real numbers
+    policy = {
+        "rule": "confirmed-call",
+        "baseline": "run-to-spec (fail -> EOL, pass -> T)",
+        "n": conf.n,
+        "pulled_early": conf.n_called,
+        "wrong_verdicts": len(conf.wrong),
+        "saved_frac": round(conf.saved_frac, 3),
+        "baseline_hours": round(b),
+        "policy_hours": round(p),
+        "channel_days_freed": round((b - p) / 24),
+        "minutes_per_cycle_median": round(float(np.median(list(rate.values()))), 1),
+        "measured_cycle_time": measured,
+        "stop_cycles": {str(int(c)): stops.count(c) for c in sorted(set(stops))},
+        "first_call": {"pulled_early": first.n_called, "wrong_verdicts": len(first.wrong),
+                       "saved_frac": round(first.saved_frac, 3)},
+        "per_cell": {o.cell: {"stop": o.stop_cycle, "baseline": o.baseline_cycles,
+                              "called": o.called_early, "verdict": o.verdict}
+                     for o in conf.outcomes},
+    }
+    d["qual"]["policy"] = policy
+    with open(BUNDLE, "w") as fp:
+        json.dump(d, fp, separators=(",", ":"))
+    print("policy summary written into", os.path.relpath(BUNDLE, ROOT))
+
     # ---- figure
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    first = next(r for r in results if r.name == "first-call")
     order = sorted(conf.outcomes, key=lambda o: o.cycle_life)
     ys = np.arange(len(order))
     col = {1: "#2a78d6", 0: "#c0392b"}

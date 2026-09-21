@@ -1,0 +1,619 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-21T15:12:58+00:00",
+  "title": "Design System: Hectocycle",
+  "source": {
+    "artifact": [
+      "app/static/index.html",
+      "app/static/style.css",
+      "app/static/app.js",
+      "app/static/fonts/fonts.css"
+    ],
+    "tokensDefinedIn": "app/static/style.css (:root and :root[data-theme=\"dark\"])",
+    "fonts": "self-hosted variable Archivo 400–700 and JetBrains Mono 400–600, Latin subset"
+  },
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cream Paper",
+        "canonical": "oklch(96.7% 0.014 93)",
+        "dark": "#121212",
+        "tonalRamp": [
+          "oklch(15% 0.014 93)",
+          "oklch(25% 0.014 93)",
+          "oklch(35% 0.014 93)",
+          "oklch(45% 0.014 93)",
+          "oklch(55% 0.014 93)",
+          "oklch(65% 0.014 93)",
+          "oklch(80% 0.014 93)",
+          "oklch(95% 0.014 93)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "oklch(99.4% 0.008 91)",
+        "dark": "#1b1b1b",
+        "tonalRamp": [
+          "oklch(15% 0.008 91)",
+          "oklch(25% 0.008 91)",
+          "oklch(35% 0.008 91)",
+          "oklch(45% 0.008 91)",
+          "oklch(55% 0.008 91)",
+          "oklch(65% 0.008 91)",
+          "oklch(80% 0.008 91)",
+          "oklch(95% 0.008 91)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(21.7% 0.006 107)",
+        "dark": "#ededed",
+        "tonalRamp": [
+          "oklch(15% 0.006 107)",
+          "oklch(25% 0.006 107)",
+          "oklch(35% 0.006 107)",
+          "oklch(45% 0.006 107)",
+          "oklch(55% 0.006 107)",
+          "oklch(65% 0.006 107)",
+          "oklch(80% 0.006 107)",
+          "oklch(95% 0.006 107)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "oklch(39.1% 0.012 114)",
+        "dark": "#c6c6c6",
+        "tonalRamp": [
+          "oklch(15% 0.012 114)",
+          "oklch(25% 0.012 114)",
+          "oklch(35% 0.012 114)",
+          "oklch(45% 0.012 114)",
+          "oklch(55% 0.012 114)",
+          "oklch(65% 0.012 114)",
+          "oklch(80% 0.012 114)",
+          "oklch(95% 0.012 114)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "oklch(49.7% 0.011 113)",
+        "dark": "#9c9c9c",
+        "tonalRamp": [
+          "oklch(15% 0.011 113)",
+          "oklch(25% 0.011 113)",
+          "oklch(35% 0.011 113)",
+          "oklch(45% 0.011 113)",
+          "oklch(55% 0.011 113)",
+          "oklch(65% 0.011 113)",
+          "oklch(80% 0.011 113)",
+          "oklch(95% 0.011 113)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "oklch(87.5% 0.015 94)",
+        "dark": "#2f2f2f",
+        "tonalRamp": [
+          "oklch(15% 0.015 94)",
+          "oklch(25% 0.015 94)",
+          "oklch(35% 0.015 94)",
+          "oklch(45% 0.015 94)",
+          "oklch(55% 0.015 94)",
+          "oklch(65% 0.015 94)",
+          "oklch(80% 0.015 94)",
+          "oklch(95% 0.015 94)"
+        ]
+      },
+      "rule-soft": {
+        "role": "neutral",
+        "displayName": "Rule Soft",
+        "canonical": "oklch(92.4% 0.016 95)",
+        "dark": "#242424",
+        "tonalRamp": [
+          "oklch(15% 0.016 95)",
+          "oklch(25% 0.016 95)",
+          "oklch(35% 0.016 95)",
+          "oklch(45% 0.016 95)",
+          "oklch(55% 0.016 95)",
+          "oklch(65% 0.016 95)",
+          "oklch(80% 0.016 95)",
+          "oklch(95% 0.016 95)"
+        ]
+      },
+      "red": {
+        "role": "secondary",
+        "displayName": "Signal Red",
+        "canonical": "oklch(55.4% 0.208 24)",
+        "dark": "#ff5c5c",
+        "tonalRamp": [
+          "oklch(15% 0.200 24)",
+          "oklch(25% 0.208 24)",
+          "oklch(35% 0.208 24)",
+          "oklch(45% 0.208 24)",
+          "oklch(55% 0.208 24)",
+          "oklch(65% 0.208 24)",
+          "oklch(80% 0.208 24)",
+          "oklch(95% 0.200 24)"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Charged Green",
+        "canonical": "oklch(61.7% 0.147 154)",
+        "dark": "#3fcf7f",
+        "tonalRamp": [
+          "oklch(15% 0.147 154)",
+          "oklch(25% 0.147 154)",
+          "oklch(35% 0.147 154)",
+          "oklch(45% 0.147 154)",
+          "oklch(55% 0.147 154)",
+          "oklch(65% 0.147 154)",
+          "oklch(80% 0.147 154)",
+          "oklch(95% 0.147 154)"
+        ]
+      },
+      "green-text": {
+        "role": "primary",
+        "displayName": "Cleared Green Text",
+        "canonical": "oklch(51.1% 0.122 154)",
+        "dark": "#6fe3a1",
+        "tonalRamp": [
+          "oklch(15% 0.122 154)",
+          "oklch(25% 0.122 154)",
+          "oklch(35% 0.122 154)",
+          "oklch(45% 0.122 154)",
+          "oklch(55% 0.122 154)",
+          "oklch(65% 0.122 154)",
+          "oklch(80% 0.122 154)",
+          "oklch(95% 0.122 154)"
+        ]
+      },
+      "slate": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "canonical": "oklch(64.6% 0.010 120)",
+        "dark": "#7a7a7a",
+        "tonalRamp": [
+          "oklch(15% 0.010 120)",
+          "oklch(25% 0.010 120)",
+          "oklch(35% 0.010 120)",
+          "oklch(45% 0.010 120)",
+          "oklch(55% 0.010 120)",
+          "oklch(65% 0.010 120)",
+          "oklch(80% 0.010 120)",
+          "oklch(95% 0.010 120)"
+        ]
+      },
+      "chem-nca": {
+        "role": "tertiary",
+        "displayName": "NCA Blue",
+        "canonical": "oklch(55.7% 0.172 260)",
+        "dark": "#6b9be8",
+        "tonalRamp": [
+          "oklch(15% 0.172 260)",
+          "oklch(25% 0.172 260)",
+          "oklch(35% 0.172 260)",
+          "oklch(45% 0.172 260)",
+          "oklch(55% 0.172 260)",
+          "oklch(65% 0.172 260)",
+          "oklch(80% 0.172 260)",
+          "oklch(95% 0.172 260)"
+        ]
+      },
+      "chem-nmc": {
+        "role": "tertiary",
+        "displayName": "NMC Plum",
+        "canonical": "oklch(54.3% 0.140 339)",
+        "dark": "#d07ab4",
+        "tonalRamp": [
+          "oklch(15% 0.140 339)",
+          "oklch(25% 0.140 339)",
+          "oklch(35% 0.140 339)",
+          "oklch(45% 0.140 339)",
+          "oklch(55% 0.140 339)",
+          "oklch(65% 0.140 339)",
+          "oklch(80% 0.140 339)",
+          "oklch(95% 0.140 339)"
+        ]
+      },
+      "chem-lfp": {
+        "role": "tertiary",
+        "displayName": "LFP Goldenrod",
+        "canonical": "oklch(65.2% 0.132 82)",
+        "dark": "#e0b054",
+        "tonalRamp": [
+          "oklch(15% 0.132 82)",
+          "oklch(25% 0.132 82)",
+          "oklch(35% 0.132 82)",
+          "oklch(45% 0.132 82)",
+          "oklch(55% 0.132 82)",
+          "oklch(65% 0.132 82)",
+          "oklch(80% 0.132 82)",
+          "oklch(95% 0.132 82)"
+        ]
+      },
+      "chem-kokam": {
+        "role": "tertiary",
+        "displayName": "Kokam Violet",
+        "canonical": "oklch(55.0% 0.159 285)",
+        "dark": "#a79bf0",
+        "tonalRamp": [
+          "oklch(15% 0.159 285)",
+          "oklch(25% 0.159 285)",
+          "oklch(35% 0.159 285)",
+          "oklch(45% 0.159 285)",
+          "oklch(55% 0.159 285)",
+          "oklch(65% 0.159 285)",
+          "oklch(80% 0.159 285)",
+          "oklch(95% 0.159 285)"
+        ]
+      },
+      "age-1": {
+        "role": "tertiary",
+        "displayName": "Age 1 (early cycle)",
+        "canonical": "oklch(83.1% 0.012 102)",
+        "dark": "#3e3e3e",
+        "tonalRamp": [
+          "oklch(15% 0.012 102)",
+          "oklch(25% 0.012 102)",
+          "oklch(35% 0.012 102)",
+          "oklch(45% 0.012 102)",
+          "oklch(55% 0.012 102)",
+          "oklch(65% 0.012 102)",
+          "oklch(80% 0.012 102)",
+          "oklch(95% 0.012 102)"
+        ]
+      },
+      "age-2": {
+        "role": "tertiary",
+        "displayName": "Age 2 (mid cycle)",
+        "canonical": "oklch(58.3% 0.012 113)",
+        "dark": "#9a9a9a",
+        "tonalRamp": [
+          "oklch(15% 0.012 113)",
+          "oklch(25% 0.012 113)",
+          "oklch(35% 0.012 113)",
+          "oklch(45% 0.012 113)",
+          "oklch(55% 0.012 113)",
+          "oklch(65% 0.012 113)",
+          "oklch(80% 0.012 113)",
+          "oklch(95% 0.012 113)"
+        ]
+      },
+      "ink-wash": {
+        "role": "neutral",
+        "displayName": "Ink Wash",
+        "canonical": null,
+        "dark": "rgba(237, 237, 237, 0.07)",
+        "note": "alpha wash over paper; no ramp"
+      },
+      "red-wash": {
+        "role": "secondary",
+        "displayName": "Red Wash",
+        "canonical": null,
+        "dark": "rgba(255, 92, 92, 0.12)",
+        "note": "alpha wash over paper; no ramp"
+      },
+      "green-wash": {
+        "role": "primary",
+        "displayName": "Green Wash",
+        "canonical": null,
+        "dark": "rgba(63, 207, 127, 0.12)",
+        "note": "alpha wash over paper; no ramp"
+      },
+      "slate-wash": {
+        "role": "neutral",
+        "displayName": "Slate Wash",
+        "canonical": null,
+        "dark": "rgba(122, 122, 122, 0.22)",
+        "note": "alpha wash over paper; no ramp"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The four disposition numerals (30px, 24px under 960px). The Read register h2 uses the same size at 700; the welcome title is 28px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The wordmark; gate and Read h3 titles at 18–19px/700."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "The chart's one-sentence title, balanced wrap."
+      },
+      "subtitle": {
+        "displayName": "Subtitle",
+        "purpose": "Data log title and inspector idle title (700)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "The 14px base; table cells 13.5px, controls 13px, notes 12.5px."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Science and Try it prose at 15px/1.7 in a 68ch column; the premise at 15px in a 56ch measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chart group titles, table headers, verdict words. Never uppercased; no eyebrows."
+      },
+      "measure": {
+        "displayName": "Measure (mono)",
+        "purpose": "Cell IDs, probabilities, deltas, chemistry codes, key-value figures. Only for measured or computed values."
+      },
+      "measure-large": {
+        "displayName": "Measure Large (mono)",
+        "purpose": "Transfer result and reading stats at 26px; inspector title 16px; mode name 18px."
+      },
+      "axis": {
+        "displayName": "Axis (mono)",
+        "purpose": "Chart tick labels at 11px in muted; axis titles and series labels are Archivo 11px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-lift",
+        "value": "0 1px 2px rgba(26, 26, 23, 0.06), 0 8px 18px -10px rgba(26, 26, 23, 0.22)",
+        "dark": "0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 18px -10px rgba(0, 0, 0, 0.7)",
+        "purpose": "The only lift: inspector, TRY IT result panel, welcome dialog, chart tooltip."
+      },
+      {
+        "name": "sheet-shadow",
+        "value": "0 -8px 40px -12px rgba(26, 26, 23, 0.35)",
+        "dark": "0 -8px 40px -12px rgba(0, 0, 0, 0.8)",
+        "purpose": "The phone bottom sheet, cast upward."
+      },
+      {
+        "name": "focus-halo",
+        "value": "0 0 0 3px var(--ink-wash)",
+        "purpose": "Search field focus, with an ink border. All other focus is outline: 2px solid var(--ink); outline-offset: 3px."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Every arrival, hover and selection transition."
+      },
+      {
+        "name": "ease-io",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "The circular theme reveal only."
+      },
+      {
+        "name": "arrival-line",
+        "value": "draw-line 0.8s ease-out",
+        "purpose": "The decision line draws left to right (stroke-dashoffset) on first fleet render."
+      },
+      {
+        "name": "arrival-bars",
+        "value": "rise 0.7s ease-out, delay 0.35s + i*4ms",
+        "purpose": "Interval bars scaleY from the decision line in a 4ms stagger; points appear at 0.75s, pennants drop at 0.95s."
+      },
+      {
+        "name": "arrival-disposition",
+        "value": "appear 0.5s ease-out, delay 1.05s + i*60ms; budget-used transition 0.9s at 1.2s",
+        "purpose": "Counters fade in after the chart; the budget bar fills last."
+      },
+      {
+        "name": "arrival-rows",
+        "value": "row-in 0.4s ease-out, delay i*14ms",
+        "purpose": "Log rows cascade in with a 6px rise."
+      },
+      {
+        "name": "select-ring",
+        "value": "draw-ring 0.35s ease-out; drop line appear 0.3s at 0.15s",
+        "purpose": "The ink pen circle draws on around the selected point, then the hairline drops to the baseline."
+      },
+      {
+        "name": "select-underline",
+        "value": "underline 0.4s ease-out",
+        "purpose": "The selected row's 1.5px ink underline scales in from the left."
+      },
+      {
+        "name": "sharpen",
+        "value": "0.5s ease-out; opacity 0 + blur(6px) + translateY(8px) to rest; 40ms stagger per inspector child",
+        "purpose": "Inspector sections, gates, reading blocks and the welcome dialog arrive blur-to-sharp."
+      },
+      {
+        "name": "counter-roll",
+        "value": "roll 0.32s ease-out (opacity 0 + translateY(4px))",
+        "purpose": "A disposition numeral changes by cross-fade with a 4px roll; never a wrong intermediate number."
+      },
+      {
+        "name": "hover-dim",
+        "value": "opacity 0.25s ease-out to 0.45",
+        "purpose": "Hovering one bar dims every other bar; tooltip follows on a lerp."
+      },
+      {
+        "name": "tab-switch",
+        "value": "View Transition root 0.35s",
+        "purpose": "Tab panes swap through document.startViewTransition; plain swap fallback."
+      },
+      {
+        "name": "theme-reveal",
+        "value": "clip-path circle(0 -> 160vmax) 0.7s ease-io from --tx/--ty",
+        "purpose": "Theme toggle reveals the new theme as a circle expanding from the toggle button."
+      },
+      {
+        "name": "sheet-slide",
+        "value": "transform 0.45s ease-out from translateY(105%)",
+        "purpose": "The phone inspector sheet slides up on selection."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce): every animation and View Transition off; scroll-behavior auto",
+        "purpose": "All motion collapses to a static render; the JS REDUCED flag also skips View Transitions and smooth scroll."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "log-narrow",
+        "value": "1180px",
+        "note": "Inspector column 460px -> 400px, gap 32px -> 24px."
+      },
+      {
+        "name": "phone",
+        "value": "960px",
+        "note": "Header stacks, tabs scroll, chart 200px tall, disposition two-column, inspector becomes bottom sheet, optional log columns hide, gutter 48px -> 20px."
+      },
+      {
+        "name": "chart-narrow",
+        "value": "620px plot width",
+        "note": "Group labels shorten, per-bar pennants withheld, one clustered pennant with count; refusal flags keep full size."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one filled pill: ink on paper, used for the welcome dialog's main action.",
+      "html": "<button class=\"ds-btn-primary\">See a worked example</button>",
+      "css": ".ds-btn-primary { font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); font-weight: 600; font-size: 14px; padding: 11px 20px; border: 1px solid var(--ink, #1a1a17); border-radius: 999px; background: var(--ink, #1a1a17); color: var(--paper, #f7f4ea); cursor: pointer; transition: transform 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), background 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-btn-primary:hover { background: var(--ink-2, #45463f); border-color: var(--ink-2, #45463f); transform: translateY(-1px); } .ds-btn-primary:active { transform: translateY(0) scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ink, #1a1a17); outline-offset: 3px; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Bare muted text that turns ink and underlines on hover; the secondary actions beside a primary.",
+      "html": "<button class=\"ds-btn-quiet\">Explore on my own</button>",
+      "css": ".ds-btn-quiet { font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); background: none; border: none; color: var(--muted, #62635c); cursor: pointer; font-size: 13.5px; padding: 6px 2px; } .ds-btn-quiet:hover { color: var(--ink, #1a1a17); text-decoration: underline; text-underline-offset: 3px; } .ds-btn-quiet:focus-visible { outline: 2px solid var(--ink, #1a1a17); outline-offset: 3px; border-radius: 2px; }"
+    },
+    {
+      "name": "Tool Button",
+      "kind": "button",
+      "refersTo": "button-tool",
+      "description": "34px pill icon button on surface (help, theme toggle, inspector close).",
+      "html": "<button class=\"ds-tool-btn\" aria-label=\"Switch to dark theme\"><svg viewBox=\"0 0 16 16\" width=\"16\" height=\"16\" aria-hidden=\"true\"><path d=\"M13 10.2A5.5 5.5 0 0 1 5.8 3a5.5 5.5 0 1 0 7.2 7.2z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/></svg></button>",
+      "css": ".ds-tool-btn { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid var(--rule, #d9d6cb); border-radius: 999px; background: var(--surface, #fffdf7); color: var(--ink-2, #45463f); cursor: pointer; transition: border-color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), transform 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-tool-btn:hover { border-color: var(--ink, #1a1a17); color: var(--ink, #1a1a17); transform: translateY(-1px); } .ds-tool-btn:active { transform: translateY(0) scale(0.96); } .ds-tool-btn:focus-visible { outline: 2px solid var(--ink, #1a1a17); outline-offset: 3px; }"
+    },
+    {
+      "name": "Fleet Switch",
+      "kind": "chip",
+      "refersTo": "segment",
+      "description": "Pill segmented control; the pressed segment is filled ink with paper text.",
+      "html": "<div class=\"ds-fleet-switch\" role=\"group\" aria-label=\"Fleet\"><button class=\"ds-seg\" aria-pressed=\"true\">Qualification</button><button class=\"ds-seg\" aria-pressed=\"false\">Diagnostics</button></div>",
+      "css": ".ds-fleet-switch { display: inline-flex; padding: 3px; border: 1px solid var(--rule, #d9d6cb); border-radius: 999px; background: var(--surface, #fffdf7); } .ds-seg { font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); padding: 7px 16px; border: none; border-radius: 999px; background: transparent; font-weight: 500; font-size: 13px; color: var(--muted, #62635c); cursor: pointer; transition: color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), background 0.25s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-seg[aria-pressed=\"true\"] { background: var(--ink, #1a1a17); color: var(--paper, #f7f4ea); } .ds-seg:not([aria-pressed=\"true\"]):hover { color: var(--ink, #1a1a17); } .ds-seg:focus-visible { outline: 2px solid var(--ink, #1a1a17); outline-offset: 3px; }"
+    },
+    {
+      "name": "Form Tabs",
+      "kind": "nav",
+      "refersTo": "tab",
+      "description": "Bare text tabs; the active tab is ink with a 2px underline that scales in from the left and closes the header rule.",
+      "html": "<nav class=\"ds-form-tabs\" role=\"tablist\"><button class=\"ds-tab active\" role=\"tab\" aria-selected=\"true\">Fleet</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Gates</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Science</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Try it</button></nav>",
+      "css": ".ds-form-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--ink, #1a1a17); } .ds-tab { font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); position: relative; padding: 12px 14px 16px; border: none; background: none; font-weight: 500; font-size: 14px; color: var(--muted, #62635c); cursor: pointer; transition: color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-tab::after { content: \"\"; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 2px; background: var(--ink, #1a1a17); transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-tab:hover, .ds-tab.active { color: var(--ink, #1a1a17); } .ds-tab.active::after { transform: scaleX(1); } .ds-tab:focus-visible { outline: 2px solid var(--ink, #1a1a17); outline-offset: 3px; border-radius: 2px; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "The log filter: surface, rule border, 6px corners; focus turns the border ink with an ink-wash halo.",
+      "html": "<input class=\"ds-search\" type=\"search\" placeholder=\"Filter cells\" autocomplete=\"off\">",
+      "css": ".ds-search { font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); font-size: 13px; padding: 7px 12px; border: 1px solid var(--rule, #d9d6cb); border-radius: 6px; background: var(--surface, #fffdf7); color: var(--ink, #1a1a17); width: 190px; transition: border-color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-search:focus { border-color: var(--ink, #1a1a17); outline: none; box-shadow: 0 0 0 3px var(--ink-wash, rgba(26, 26, 23, 0.06)); } .ds-search::placeholder { color: var(--muted, #62635c); } .ds-search::-webkit-search-cancel-button { -webkit-appearance: none; }"
+    },
+    {
+      "name": "Disposition Count",
+      "kind": "custom",
+      "refersTo": "disposition-count",
+      "description": "A queue count button: 10px swatch, 30px tabular numeral tinted by meaning, lowercase label; pressed shows an ink border on surface.",
+      "html": "<div class=\"ds-disp-counts\"><button class=\"ds-disp good\" aria-pressed=\"false\"><span class=\"ds-swatch pass\"></span><span class=\"ds-n\">67</span><span class=\"ds-lbl\">ready to call (52 pass · 15 fail)</span></button><button class=\"ds-disp\" aria-pressed=\"true\"><span class=\"ds-swatch keep\"></span><span class=\"ds-n\">22</span><span class=\"ds-lbl\">keep testing</span></button><button class=\"ds-disp flag\" aria-pressed=\"false\"><span class=\"ds-swatch held\"></span><span class=\"ds-n\">3</span><span class=\"ds-lbl\">held</span></button></div>",
+      "css": ".ds-disp-counts { display: flex; gap: 6px; flex-wrap: wrap; font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); font-variant-numeric: tabular-nums; } .ds-disp { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px 6px 10px; border: 1px solid transparent; border-radius: 6px; background: none; cursor: pointer; font: inherit; font-size: 13px; color: var(--ink-2, #45463f); transition: border-color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), background 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), color 0.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-disp:hover { border-color: var(--rule, #d9d6cb); color: var(--ink, #1a1a17); } .ds-disp[aria-pressed=\"true\"] { border-color: var(--ink, #1a1a17); background: var(--surface, #fffdf7); color: var(--ink, #1a1a17); } .ds-disp .ds-n { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; min-width: 2.2ch; text-align: right; display: inline-block; color: var(--ink, #1a1a17); } .ds-disp.good .ds-n { color: var(--green-text, #157a44); } .ds-disp.flag .ds-n { color: var(--red, #d1202f); } .ds-swatch { width: 10px; height: 10px; border-radius: 2px; align-self: center; } .ds-swatch.pass { background: var(--green, #1e9e5a); } .ds-swatch.keep { background: var(--slate, #8d8f88); } .ds-swatch.held { background: repeating-linear-gradient(135deg, var(--red, #d1202f) 0 2px, transparent 2px 5px); border: 1px solid var(--red, #d1202f); } .ds-disp:focus-visible { outline: 2px solid var(--ink, #1a1a17); outline-offset: 3px; }"
+    },
+    {
+      "name": "Verdict Chip",
+      "kind": "chip",
+      "refersTo": null,
+      "description": "Inline verdict word with a 9px meaning swatch; out-of-envelope is red text behind the pennant glyph with no swatch.",
+      "html": "<div class=\"ds-verdicts\"><span class=\"ds-verdict pass\">Pass</span><span class=\"ds-verdict fail\">Fail</span><span class=\"ds-verdict keep-testing\">Keep testing</span><span class=\"ds-verdict train\">Reference</span><span class=\"ds-verdict out-of-envelope\"><svg viewBox=\"0 0 12 14\" width=\"11\" height=\"13\" aria-hidden=\"true\"><path d=\"M1.5 1v12\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/><path d=\"M2.4 1.6h8.2l-2.6 3.2 2.6 3.2H2.4z\" fill=\"currentColor\"/></svg>Held</span></div>",
+      "css": ".ds-verdicts { display: flex; gap: 16px; flex-wrap: wrap; font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); } .ds-verdict { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em; } .ds-verdict::before { content: \"\"; width: 9px; height: 9px; border-radius: 2px; } .ds-verdict.pass { color: var(--green-text, #157a44); } .ds-verdict.pass::before { background: var(--green, #1e9e5a); } .ds-verdict.fail { color: var(--ink, #1a1a17); } .ds-verdict.fail::before { background: var(--ink, #1a1a17); } .ds-verdict.keep-testing { color: var(--ink-2, #45463f); } .ds-verdict.keep-testing::before { background: var(--slate, #8d8f88); } .ds-verdict.train { color: var(--muted, #62635c); font-weight: 500; } .ds-verdict.train::before { border: 1px solid var(--slate, #8d8f88); } .ds-verdict.out-of-envelope { color: var(--red, #d1202f); } .ds-verdict.out-of-envelope::before { display: none; } .ds-verdict svg { width: 11px; height: 13px; }"
+    },
+    {
+      "name": "Consequence Block",
+      "kind": "card",
+      "refersTo": "consequence-pass",
+      "description": "The inspector's first statement: 600/14px on a meaning-tinted wash with 4px corners (pass, fail, keep testing, out of envelope).",
+      "html": "<div class=\"ds-consequences\"><p class=\"ds-consequence pass\">This cell can come off the cycler today: interval clear of the decision line.</p><p class=\"ds-consequence keep-testing\">Keep testing: the interval straddles the decision line, so 100 cycles cannot separate this cell from the spec.</p><p class=\"ds-consequence out-of-envelope\">Held: charge time sits outside the training envelope. No number offered.</p></div>",
+      "css": ".ds-consequences { display: grid; gap: 10px; font-family: var(--sans, \"Archivo\", \"Helvetica Neue\", Arial, sans-serif); } .ds-consequence { padding: 12px 14px; border-radius: 4px; font-size: 14px; font-weight: 600; line-height: 1.45; text-wrap: pretty; } .ds-consequence.pass { background: var(--green-wash, rgba(30, 158, 90, 0.12)); color: var(--green-text, #157a44); } .ds-consequence.fail { background: var(--ink-wash, rgba(26, 26, 23, 0.06)); color: var(--ink, #1a1a17); } .ds-consequence.keep-testing { background: var(--slate-wash, rgba(141, 143, 136, 0.18)); color: var(--ink, #1a1a17); } .ds-consequence.out-of-envelope { background: var(--red-wash, rgba(209, 32, 47, 0.09)); color: var(--red, #d1202f); }"
+    },
+    {
+      "name": "Interval Bar",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "The data log's 104 by 14px verdict bracket: rule rail, ink notch at the decision line, band in the verdict colour, point, mono probability.",
+      "html": "<div class=\"ds-ibars\"><span class=\"ds-ibar\"><svg viewBox=\"0 0 104 14\" width=\"104\" height=\"14\" aria-hidden=\"true\"><line class=\"ds-ib-rail\" x1=\"0\" y1=\"7\" x2=\"104\" y2=\"7\"/><line class=\"ds-ib-notch\" x1=\"52\" y1=\"2\" x2=\"52\" y2=\"12\"/><rect class=\"ds-ib-band pass\" x=\"70\" y=\"5\" width=\"34\" height=\"4\" rx=\"2\"/><circle class=\"ds-ib-point pass\" cx=\"100\" cy=\"7\" r=\"3\"/></svg><span class=\"ds-p\">1.00</span></span><span class=\"ds-ibar\"><svg viewBox=\"0 0 104 14\" width=\"104\" height=\"14\" aria-hidden=\"true\"><line class=\"ds-ib-rail\" x1=\"0\" y1=\"7\" x2=\"104\" y2=\"7\"/><line class=\"ds-ib-notch\" x1=\"52\" y1=\"2\" x2=\"52\" y2=\"12\"/><rect class=\"ds-ib-band keep-testing\" x=\"38\" y=\"5\" width=\"60\" height=\"4\" rx=\"2\"/><circle class=\"ds-ib-point\" cx=\"74\" cy=\"7\" r=\"3\"/></svg><span class=\"ds-p\">0.71</span></span></div>",
+      "css": ".ds-ibars { display: grid; gap: 10px; } .ds-ibar { display: inline-flex; align-items: center; gap: 10px; } .ds-ib-rail { stroke: var(--rule, #d9d6cb); stroke-width: 1.5; } .ds-ib-notch { stroke: var(--ink, #1a1a17); stroke-width: 1.25; } .ds-ib-band.pass { fill: var(--green, #1e9e5a); } .ds-ib-band.fail { fill: var(--ink, #1a1a17); } .ds-ib-band.keep-testing { fill: var(--slate, #8d8f88); } .ds-ib-point { fill: var(--ink, #1a1a17); stroke: var(--surface, #fffdf7); stroke-width: 1; } .ds-ib-point.pass { fill: var(--green, #1e9e5a); } .ds-p { font-family: var(--mono, \"JetBrains Mono\", ui-monospace, Menlo, monospace); font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--ink, #1a1a17); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Control Chart",
+    "overview": "**Creative North Star: \"The Control Chart\"**\n\nHectocycle is one Shewhart control chart, and everything else on the page is the chart's paperwork. The fleet of held-out cells sits as interval bars on a shared 0 to 1 rail with the decision line drawn across it; a bar that clears the line is a call, a bar that straddles it wears a red pennant, and a cell the model refuses to score is a red-hatched column, the loudest mark on the page. The ground is plain cream chart paper in light and matte black in dark, with no grid, no texture and no pattern behind the data. Density is high but calm: one hairline rule separates the chart from the disposition line, one separates the log from its header, and the inspector is the only surface that lifts off the paper.\n\nColour is a signal, never decoration. There are exactly four meanings: green for a cleared pass or a positive result, red for an alarm and nothing else, neutral ink for text and every interaction state, and gray for waiting. Four chemistry hues are categorical and keep clear of all four meanings so no chemistry ever impersonates a status. Archivo carries every UI role at four weights; JetBrains Mono appears only where a measurement or a cell ID is being read. Numerals are tabular everywhere, so counts and hours never jitter as they change.\n\nMotion is a single arrival choreography (the decision line draws, the bars rise from it, the flags drop, the counters and rows follow) plus one selection signature (an ink pen circle draws around the chosen point, a hairline drops to the baseline, the inspector sharpens in). Tabs and the theme toggle use the View Transitions API, the theme as a circular reveal from the toggle. Every motion collapses to a static render under `prefers-reduced-motion`. Confirmed rejections: the KPI-tally dashboard, decorative gradients, background grids, eyebrows and section numbers, cards inside cards, and any number shown for a refused cell.",
+    "keyCharacteristics": [
+      "One chart is the page; tables, counters and the inspector serve it",
+      "Cream paper (#f7f4ea) or matte black (#121212), never patterned, never hue-cast",
+      "Four colour meanings (green cleared, red alarm, ink neutral, gray waiting) plus a categorical chemistry quartet",
+      "Archivo for every UI role; JetBrains Mono for measurements and IDs only; tabular numerals throughout",
+      "1px hairline rules, 4px panel corners, 999px pills; depth by one soft lift on the inspector",
+      "One arrival choreography, one selection signature, all reduced-motion aware"
+    ],
+    "rules": [
+      {
+        "name": "The Four Meanings Rule",
+        "body": "Green means cleared or positive, red means alarm, ink is the neutral voice, gray means waiting. A colour that appears without one of these four meanings is a defect. Chemistry hues are categorical and never carry a status.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Interaction Rule",
+        "body": "Selection, focus, hover and the decision line are ink, never red and never green. Red is spent only on things that must be acted on: a straddled interval, a refusal, a limit, an error.",
+        "section": "colors"
+      },
+      {
+        "name": "The Plain Paper Rule",
+        "body": "The ground is one flat colour: cream in light, matte black in dark. No grid, no noise, no gradient, no hue cast behind the data.",
+        "section": "colors"
+      },
+      {
+        "name": "The Mono Is A Measurement Rule",
+        "body": "JetBrains Mono appears only on a value that was measured, computed or identifies a cell. Prose, labels, buttons and headings never use it.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Scale Step Rule",
+        "body": "The only large type on the Fleet surface is the four disposition numerals at 30px. Nothing else on that surface exceeds 20px; the chart title is 18px so the chart stays the largest thing.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "Only the surface that holds the selected cell (inspector, result panel, dialog, tooltip) lifts off the paper. Bands, tables, counts and charts stay flat and are separated by rules.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the page ground one flat colour: cream (#f7f4ea) in light, matte black (#121212) in dark, no grid, gradient or texture.",
+      "Do spend red only on alarms: a straddle pennant, a refusal hatch, a limit line, an error or a shortfall against spec.",
+      "Do use ink for every interaction state: selection ring, drop line, row underline, focus outline, hover border, pressed segment.",
+      "Do set every measurement, probability, delta and cell ID in JetBrains Mono with tabular numerals, and everything else in Archivo.",
+      "Do separate bands with 1px rules (`rule` for hairlines, `ink` for structural edges) and give panels 4px corners and pressable controls 999px pills.",
+      "Do lift only the surface that holds the selected cell (inspector, result panel, dialog, tooltip) with the Lift shadow.",
+      "Do run motion once as arrival (line draws, bars rise, flags drop, counters and rows follow) and once as selection; collapse all of it under `prefers-reduced-motion`.",
+      "Do keep the refused mark at full size on every breakpoint and cluster straddler pennants into one flag with a count when the chart is narrow."
+    ],
+    "donts": [
+      "Don't show a number for a refused cell; a refusal is a hatched column, a pennant and the out-of-range feature's name.",
+      "Don't let a chemistry hue read as a status: the quartet stays clear of green and red and never fills a verdict.",
+      "Don't use green as the interval fill for anything but a cleared pass, or use fill green for type (use `green-text`).",
+      "Don't add eyebrows, kickers, section numbers, uppercase labels or cards inside cards.",
+      "Don't add a second lift, a hard offset shadow, a glow or a hover shadow; hover is a border change and a 1px rise.",
+      "Don't let a masthead tally or an accuracy scorecard become the largest type on a surface; the 30px disposition numerals are the one scale step.",
+      "Don't introduce custom cursors, split-text reveals, parallax, magnetic buttons or marquees."
+    ]
+  }
+}

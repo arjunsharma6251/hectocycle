@@ -8,13 +8,13 @@ A cockpit for cell qualification triage: **call pass/fail early — with honest 
 
 ![gate-first](https://img.shields.io/badge/method-gate--first-b0653a) ![ci](https://github.com/arjunsharma6251/hectocycle/actions/workflows/ci.yml/badge.svg)
 
-![Fleet view — early qualification calls with Venn-ABERS interval brackets](docs/screenshots/fleet-early-call.png)
+![Fleet view — the held-out cells as one control chart against the 0.5 decision line](docs/screenshots/fleet-early-call.png)
 
-*The fleet as a triage inbox: queue cards summarize who can come off the cyclers today; every early call is a probability rail with its Venn-ABERS interval, and a straddled decision line means an explicit KEEP TESTING — honest uncertainty as the visual identity.*
+*The fleet as one control chart: every held-out cell is an interval bar on a shared 0–1 rail with the 0.5 decision line. A bar that clears the line is a call, a bar that crosses it is flagged KEEP TESTING, and the three cells the model refuses to score are red-hatched, the loudest marks on the page. Beneath the chart, the disposition line reports what the allocation policy does to cycler time: 60 of 83 channels freed, 0 wrong verdicts, 1,144 channel-days.*
 
 ![Oxford cell — full quantitative LLI / LAM_pe / LAM_ne split](docs/screenshots/oxford-mode-split.png)
 
-*Degradation-mode attribution, earned tier by tier: with C/18.5 diagnostics and chemistry-matched half-cell references, the full LLI / LAM_pe / LAM_ne split passes the pre-registered stability gate on 8/8 cells (ρ = 1.00). Cells with only 0.5C data get a qualitative hint instead — the UI never shows a number the gate didn't earn.*
+*Degradation-mode attribution, earned tier by tier: with C/18.5 diagnostics and chemistry-matched half-cell references, the full LLI / LAM_pe / LAM_ne split passes the pre-registered stability gate on 8/8 cells (ρ = 1.00). Cells with only 0.5C data get a qualitative hint with its stability score, LFP cells are marked muted, and the UI never shows a number the gate didn't earn.*
 
 ![TRY IT — score your own cell CSV in the browser](docs/screenshots/try-it.png)
 
