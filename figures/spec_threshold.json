@@ -1,0 +1,197 @@
+{
+ "bars": {
+  "coverage": 0.85,
+  "saved_ratio_700": 0.9,
+  "wrong_per_T": 2
+ },
+ "grid": [
+  500,
+  600,
+  700,
+  800,
+  900,
+  1000
+ ],
+ "coverage": 0.927710843373494,
+ "median_width": 554.712640785366,
+ "classifier_700": {
+  "policy": "confirmed-call",
+  "n": 83,
+  "called_early": 60,
+  "called_frac": 0.723,
+  "wrong_calls": 0,
+  "baseline_cycles": 52488.0,
+  "policy_cycles": 17153.0,
+  "saved_frac": 0.673,
+  "wrong_ids": []
+ },
+ "per_T": {
+  "500": {
+   "policy": "confirmed-call",
+   "n": 83,
+   "called_early": 50,
+   "called_frac": 0.602,
+   "wrong_calls": 1,
+   "baseline_cycles": 40655.0,
+   "policy_cycles": 18862.0,
+   "saved_frac": 0.536,
+   "wrong_ids": [
+    "b1c41"
+   ],
+   "n_pass": 68
+  },
+  "600": {
+   "policy": "confirmed-call",
+   "n": 83,
+   "called_early": 45,
+   "called_frac": 0.542,
+   "wrong_calls": 1,
+   "baseline_cycles": 46870.0,
+   "policy_cycles": 23067.0,
+   "saved_frac": 0.508,
+   "wrong_ids": [
+    "b1c41"
+   ],
+   "n_pass": 59
+  },
+  "700": {
+   "policy": "confirmed-call",
+   "n": 83,
+   "called_early": 39,
+   "called_frac": 0.47,
+   "wrong_calls": 1,
+   "baseline_cycles": 52488.0,
+   "policy_cycles": 30279.0,
+   "saved_frac": 0.423,
+   "wrong_ids": [
+    "b1c41"
+   ],
+   "n_pass": 53
+  },
+  "800": {
+   "policy": "confirmed-call",
+   "n": 83,
+   "called_early": 37,
+   "called_frac": 0.446,
+   "wrong_calls": 1,
+   "baseline_cycles": 57446.0,
+   "policy_cycles": 37344.0,
+   "saved_frac": 0.35,
+   "wrong_ids": [
+    "b1c41"
+   ],
+   "n_pass": 46
+  },
+  "900": {
+   "policy": "confirmed-call",
+   "n": 83,
+   "called_early": 36,
+   "called_frac": 0.434,
+   "wrong_calls": 1,
+   "baseline_cycles": 61229.0,
+   "policy_cycles": 41717.0,
+   "saved_frac": 0.319,
+   "wrong_ids": [
+    "b1c41"
+   ],
+   "n_pass": 31
+  },
+  "1000": {
+   "policy": "confirmed-call",
+   "n": 83,
+   "called_early": 41,
+   "called_frac": 0.494,
+   "wrong_calls": 1,
+   "baseline_cycles": 63965.0,
+   "policy_cycles": 40982.0,
+   "saved_frac": 0.359,
+   "wrong_ids": [
+    "b1c41"
+   ],
+   "n_pass": 25
+  }
+ },
+ "checks": {
+  "coverage": true,
+  "wrong_700": false,
+  "saved_700": false,
+  "per_T": {
+   "500": true,
+   "600": true,
+   "700": true,
+   "800": true,
+   "900": true,
+   "1000": true
+  }
+ },
+ "decision": "KILL",
+ "valid_T": [
+  700
+ ],
+ "b4": {
+  "n": 41,
+  "coverage": 0.7804878048780488,
+  "per_T": {
+   "500": {
+    "policy": "confirmed-call",
+    "n": 41,
+    "called_early": 33,
+    "called_frac": 0.805,
+    "wrong_calls": 0,
+    "baseline_cycles": 20374.0,
+    "policy_cycles": 6184.0,
+    "saved_frac": 0.696
+   },
+   "600": {
+    "policy": "confirmed-call",
+    "n": 41,
+    "called_early": 28,
+    "called_frac": 0.683,
+    "wrong_calls": 0,
+    "baseline_cycles": 23871.0,
+    "policy_cycles": 9531.0,
+    "saved_frac": 0.601
+   },
+   "700": {
+    "policy": "confirmed-call",
+    "n": 41,
+    "called_early": 13,
+    "called_frac": 0.317,
+    "wrong_calls": 1,
+    "baseline_cycles": 26878.0,
+    "policy_cycles": 18960.0,
+    "saved_frac": 0.295
+   },
+   "800": {
+    "policy": "confirmed-call",
+    "n": 41,
+    "called_early": 10,
+    "called_frac": 0.244,
+    "wrong_calls": 0,
+    "baseline_cycles": 29160.0,
+    "policy_cycles": 22752.0,
+    "saved_frac": 0.22
+   },
+   "900": {
+    "policy": "confirmed-call",
+    "n": 41,
+    "called_early": 10,
+    "called_frac": 0.244,
+    "wrong_calls": 1,
+    "baseline_cycles": 30511.0,
+    "policy_cycles": 25081.0,
+    "saved_frac": 0.178
+   },
+   "1000": {
+    "policy": "confirmed-call",
+    "n": 41,
+    "called_early": 11,
+    "called_frac": 0.268,
+    "wrong_calls": 0,
+    "baseline_cycles": 31052.0,
+    "policy_cycles": 25276.0,
+    "saved_frac": 0.186
+   }
+  }
+ }
+}

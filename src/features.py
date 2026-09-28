@@ -61,3 +61,9 @@ def featurize(bat_dict, cutoff=100, cyc_early=10):
         row.update(aux_features(cell, cutoff=cutoff))
         rows[key] = row
     return pd.DataFrame.from_dict(rows, orient="index")[FEATURE_NAMES]
+
+
+def dq_frame(bat_dict, cutoff=100, cyc_early=10):
+    """DeltaQ(V) features only (no summary-derived auxiliaries)."""
+    rows = {k: delta_q_features(c, cyc_late=cutoff, cyc_early=cyc_early) for k, c in bat_dict.items()}
+    return pd.DataFrame.from_dict(rows, orient="index")[["log_var_dq", "log_min_dq", "log_mean_dq"]]

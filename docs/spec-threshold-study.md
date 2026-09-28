@@ -53,3 +53,54 @@ No multivariate life-model interval had been computed on any test cell.
 **Descriptive, not gated:**
 - Coverage and per-T wrong verdicts on batch 4. Given the out-of-sample study, low coverage is expected; it is reported, not tuned for.
 - Interval width in cycles.
+
+## 1. Result: **KILL**, so the cockpit stays at T = 700
+
+Scored once by `scripts/spec_threshold.py` (full output in `figures/spec_threshold.json`).
+
+| Check (Severson test, n = 83) | Life model | Bar | |
+|---|---|---|---|
+| Coverage of the 90% interval @ 100 | **0.93** | ≥ 0.85 | ✅ |
+| T = 700 wrong verdicts (confirmed-call) | **1** | ≤ 0 (the classifier's) | ❌ |
+| T = 700 cycler-cycles saved | **42%** | ≥ 60.3% (90% of the classifier's 67%) | ❌ |
+| Wrong verdicts at each T ∈ {500 … 1000} | **1** at every T | ≤ 2 | ✅ ×6 |
+
+### **OFFICIAL GATE DECISION: KILL**
+
+The interval is honest but too wide to earn the product. The spec slider does not ship as a validated feature.
+
+![Life-model intervals and per-threshold policy](../figures/spec_threshold.png)
+
+**Why.** The intervals *cover*: 93% against a 90% nominal. But they are wide, with a median width of 555 cycles at cycle 100. That is roughly ±30% around a typical life, set by the 41-cell training split and the leave-one-out residuals.
+- A wide interval straddles more thresholds, so fewer cells are called: 39 of 83 at T = 700, against the classifier's 60.
+- The saving drops from 67% to 42%.
+
+The Venn-ABERS classifier is more decisive at T = 700 because it only has to answer one question, which side of 700, not where the cell will end up.
+
+**The one wrong call** is the same cell at every threshold: b1c41, which lived 1,051 cycles. Its cycle-100 ΔQ(V) is extreme enough that the regression extrapolates its life to about 40–110 cycles, and the confirmed-call rule pulls it as a FAIL. This is also the cell the classifier's greedy first-call rule got wrong in the allocation study. It is an outlier in feature space, not a threshold effect.
+
+## 2. Descriptive: batch 4 turns the comparison around
+
+On batch 4 (41 cells inside the envelope), where the classifier failed its own gate with 5 wrong confirmed calls at T = 700, the life model does much better:
+
+| | Coverage @ 100 | Wrong at T = 500 / 600 / 700 / 800 / 900 / 1000 |
+|---|---|---|
+| Batch 4 | 0.78 | 0 / 0 / 1 / 0 / 1 / 0 (at T = 700: 13 of 41 called, 30% saved) |
+
+Its coverage drops under the silent shift (0.78, against 0.93 in-sample), but the wide interval absorbs most of the 18% level shift instead of committing to a side of the line.
+
+This makes the trade-off concrete:
+- **A decisive model is fragile off-distribution.**
+- **A robust model is indecisive on it.**
+
+Neither is a free lunch at n = 41.
+
+## 3. What would earn the slider back
+
+A slider needs intervals that are both valid and narrow.
+
+**Narrow** needs more training cells or a better signal, not a different wrapper.
+- Jackknife+ width is set by the leave-one-out residuals of a 41-cell regression.
+- The early-call study's classifier gets its decisiveness from answering one threshold, not from a better signal.
+
+**What would move it:** retraining on Severson train plus batch 4, once a batch-offset term is in the model, since the out-of-sample study shows the offset is real. That is a new model and needs a new pre-registered gate and fresh cells, not a tweak to this one. It is recorded here as the open path, not taken.

@@ -19,9 +19,7 @@ sys.path.insert(0, ROOT)
 
 from src.calibration import abstain_call, cvap_predict  # noqa: E402
 from src.data import build_dataset  # noqa: E402
-import pandas as pd  # noqa: E402
-
-from src.features import delta_q_features, featurize  # noqa: E402
+from src.features import dq_frame, featurize  # noqa: E402
 from src.gate import expected_calibration_error  # noqa: E402
 from src.labels import make_labels  # noqa: E402
 from src.matr_b4 import batterylife_labels, load_b4  # noqa: E402
@@ -33,13 +31,6 @@ from src.transfer import DQ_FEATURES, envelope_violations, feature_envelope  # n
 T = 700
 BARS = {"balanced_acc": 0.85, "ece": 0.10, "acc_on_called": 0.90,
         "policy_wrong": 1, "refused": 15}
-
-
-def dq_frame(bd, cutoff):
-    """DeltaQ(V) features only; b4's summary arrays aren't needed (one cell's
-    are ragged) and the production model never reads them."""
-    return pd.DataFrame.from_dict({k: delta_q_features(c, cyc_late=cutoff) for k, c in bd.items()},
-                                  orient="index")[DQ_FEATURES]
 
 
 def balanced_accuracy(y, yhat):
