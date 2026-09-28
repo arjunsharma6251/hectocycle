@@ -1,0 +1,128 @@
+{
+ "batches": {
+  "b1": {
+   "date": "2017-05-12",
+   "role": "released",
+   "n": 46,
+   "median": 1.07868905,
+   "iqr": [
+    1.074923175,
+    1.081624575
+   ]
+  },
+  "b2": {
+   "date": "2017-06-30",
+   "role": "released",
+   "n": 48,
+   "median": 1.0710814499999999,
+   "iqr": [
+    1.0672769999999998,
+    1.074594825
+   ]
+  },
+  "2018-02-20": {
+   "date": "2018-02-20",
+   "role": "new",
+   "n": 47,
+   "median": 1.0925682,
+   "iqr": [
+    1.08632215,
+    1.0988760499999999
+   ]
+  },
+  "varcharge": {
+   "date": "2018-04-03",
+   "role": "new",
+   "n": 2,
+   "median": 1.0086405999999999,
+   "iqr": [
+    0.98666135,
+    1.03061985
+   ]
+  },
+  "b3": {
+   "date": "2018-04-12",
+   "role": "released",
+   "n": 46,
+   "median": 1.0658566999999999,
+   "iqr": [
+    1.06086575,
+    1.06865915
+   ]
+  },
+  "CLO round 1": {
+   "date": "2018-08-28",
+   "role": "closed-loop",
+   "n": 46,
+   "median": 1.0551723499999999,
+   "iqr": [
+    1.04647755,
+    1.061661125
+   ]
+  },
+  "CLO round 2": {
+   "date": "2018-09-02",
+   "role": "closed-loop",
+   "n": 46,
+   "median": 1.0629651,
+   "iqr": [
+    1.0572318250000001,
+    1.0654304
+   ]
+  },
+  "CLO round 3": {
+   "date": "2018-09-06",
+   "role": "closed-loop",
+   "n": 48,
+   "median": 1.06115615,
+   "iqr": [
+    1.05766305,
+    1.06406525
+   ]
+  },
+  "CLO round 4": {
+   "date": "2018-09-10",
+   "role": "closed-loop",
+   "n": 48,
+   "median": 1.0571937999999999,
+   "iqr": [
+    1.049438925,
+    1.063977025
+   ]
+  },
+  "b4": {
+   "date": "2019-01-24",
+   "role": "released",
+   "n": 45,
+   "median": 1.0505757,
+   "iqr": [
+    1.0449144,
+    1.0581099
+   ]
+  }
+ },
+ "used": [
+  "b1",
+  "b2",
+  "2018-02-20",
+  "b3",
+  "CLO round 1",
+  "CLO round 2",
+  "CLO round 3",
+  "CLO round 4",
+  "b4"
+ ],
+ "h1_range": 0.007792750000000126,
+ "h2_spearman": -0.8499999999999999,
+ "h3_all_between": true,
+ "checks": {
+  "H1_stable": false,
+  "H2_calendar_trend": true,
+  "H3_placement": true
+ },
+ "decision": "DROP: too noisy within a campaign to serve as a warning",
+ "bars": {
+  "h1_range": 0.007,
+  "h2_rho": -0.7
+ }
+}

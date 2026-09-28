@@ -45,7 +45,6 @@ SEED = 2026
 CLASSIFIER_T = 700        # stage-1 pulls exist only at the spec the classifier was trained for
 BARS = {"mean_wrong": 0.5, "p_le1_wrong": 0.95, "saved": 0.0, "coverage": 0.70, "refused_frac": 1 / 3,
         "min_each_side": 5}
-SEVERSON_QD2 = {"b1": 1.0784, "b2": 1.0717, "b3": 1.0653}  # median cycle-2 capacity, Ah
 
 
 def matr_eligibility(mat_path, lot, sev, train):
@@ -212,14 +211,13 @@ def main(argv=None):
            "frozen": {"k": K_PILOTS, "audit_level": AUDIT_LEVEL, "cap_factor": CAP_FACTOR, "draws": DRAWS,
                       "seed": SEED, "bars": BARS},
            "mode": "provisional pull" if use_classifier else "life-model only (no stage-1 classifier at this T)",
-           "metrics": m, "checks": checks, "informative": informative, "decision": decision,
-           "batch_warning": {"lot_qd2": m["qd2_median"], "severson_qd2": SEVERSON_QD2,
-                             "outside": None if m["qd2_median"] is None else not (
-                                 min(SEVERSON_QD2.values()) <= m["qd2_median"] <= max(SEVERSON_QD2.values()))}}
+           "metrics": m, "checks": checks, "informative": informative, "decision": decision}
+    # the cycle-2 capacity "batch warning" was dropped (docs/batch-warning-study.md): qd2 stays in
+    # metrics as a description only
     path = os.path.join(ROOT, "figures", f"batch_recal_{args.name}.json")
     with open(path, "w") as fp:
         json.dump(out, fp, indent=1)
-    print(json.dumps({k: out[k] for k in ("lot", "T", "mode", "checks", "decision", "batch_warning")}, indent=1))
+    print(json.dumps({k: out[k] for k in ("lot", "T", "mode", "checks", "decision")}, indent=1))
     print(json.dumps(m, indent=1))
     return out
 

@@ -41,3 +41,26 @@ The cell is the same A123 APR18650M1A throughout. Attia et al. give lot EL150800
 Turning it into a detector would need lots with known outcomes on both sides, which is the batch-recalibration study's job.
 
 **Scope:** this is about cycle-2 capacity only. No life label from any new batch is read here. The 2018-02-20 batch's lives belong to the batch-recalibration study (§4 there), which runs first.
+
+## 1. Result: **DROP**. The signal tracks calendar time but is too noisy to warn
+
+Scored once by `scripts/batch_warning.py` (output in `figures/batch_warning.json`). Nine batches qualify; the 2018-04-03 "varcharge" file has only 2 cells and is excluded.
+
+| Hypothesis | Result | Bar | |
+|---|---|---|---|
+| H1: stable within a campaign (four closed-loop rounds, 13 days apart) | range **0.0078 Ah** | ≤ 0.007 | ❌ |
+| H2: falls with test start date (9 batches) | Spearman ρ = **−0.85** | ≤ −0.7 | ✅ |
+| H3: the closed-loop rounds sit between b3 and b4 | all four, 1.0552–1.0630 Ah | between 1.0506 and 1.0653 | ✅ |
+
+### **OFFICIAL DECISION: DROP**
+
+The signal is removed from the lot report.
+
+![Cycle-2 capacity by batch start date](../figures/batch_warning.png)
+
+**What the numbers say.**
+- **The trend is real.** Cycle-2 capacity falls steadily from May 2017 to January 2019, and the closed-loop rounds land exactly where storage time predicts. That is what calendar aging would do.
+- **The trend is too gentle for a warning.** Four rounds started within two weeks of each other already spread by 0.0078 Ah, about half the b3 → b4 gap. A lot shifted as much as batch 4 would sit barely outside ordinary round-to-round noise.
+- **The 2018-02-20 lot breaks the trend.** At 1.093 Ah it is above every earlier batch, so plausibly a fresher cell lot. Yet in the batch-recalibration study its offset was ordinary and its trouble was heterogeneity. A high reading didn't mean safe, and batch 4's low reading was the only case where low meant shifted.
+
+**Consequence:** cycle-2 capacity is kept as a *description* of calendar age in this study only. It is not reported per lot and gates nothing. Detecting a shifted lot still needs cells that reach end of life, which is what the pilot cells are for.

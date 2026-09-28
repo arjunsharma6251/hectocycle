@@ -42,7 +42,7 @@ Results at k = 4 (mean over draws; full sweep in `figures/batch_recal_explore*.j
 3. **The batch-offset model beats shifting the pooled jackknife+ intervals.** It gave fewer reversals on b2 (0.8 vs 3.7) and b3 (6.6 vs 24), and narrower intervals. The shifted-interval variant was dropped.
 4. **Audit confidence is the safety/saving dial.** On b4: 90% → 0.07 wrong, 8% saved; 80% → 0.21, 14%; 70% → 0.37, 19%; 50% → 0.74, 29%. **80% was chosen**: on a clean lot it keeps most of the saving (b3: 61% of a possible 74%).
 5. **Uncapped pilots make the final verdict slow on long-lived lots.** On b1-test some pilots lived past 2,000 cycles, so verdicts took 61 days. **Capping pilots at 1.5 × T** and treating survivors as censored brought that to 37 days and slightly raised savings.
-6. **The batch warning is a clue, not yet a detector.** Batch 4's median discharge capacity at cycle 2 (1.051 Ah) is below every training batch's (1.065–1.078). With four batches this is one data point. It is reported with every lot but gates nothing.
+6. **The batch warning is a clue, not yet a detector** (later tested and dropped: see the batch-warning study). Batch 4's median discharge capacity at cycle 2 (1.051 Ah) is below every training batch's (1.065–1.078). With four batches this is one data point. It is reported with every lot but gates nothing.
 
 ## 1. Pre-registration (committed before HUST or any new lot was scored)
 
