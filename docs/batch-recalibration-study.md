@@ -143,3 +143,42 @@ The file had not been downloaded when this was written, and no cell, curve, feat
 **Then, exactly as frozen in §1:** censored cells (logs ending above 80%) are excluded from the gate. The lot is *uninformative* with fewer than 5 labelled cells on either side of T = 700. Otherwise the §1 fresh-lot gate decides BUILD, RESCOPE or KILL.
 
 **Stated in advance:** because the lab's own code marks only the four released batches as run to 80%, this lot may well be mostly censored and come out uninformative.
+
+## 5. Phase C result on the 2018-02-20 lot: **KILL**, on coverage alone
+
+Run once by `scripts/batch_recal.py --source matr-mat` (output in `figures/batch_recal_lot-2018-02-20.json`).
+
+**Eligibility (§4):** passed.
+- E1: 47 cells with cycle-100 data
+- E2: median discharge 4.00C
+- E3: median cycle-10 temperature 33.0 °C, inside the training range of 29.0–33.7 °C
+
+**Informative:** yes. 39 of the cells have a measured life (9 pass, 30 fail at T = 700); 8 logs end above 80% and are censored.
+
+| Check | Result | Bar | |
+|---|---|---|---|
+| Wrong final verdicts, mean over 1,000 pilot draws | **0.36** | ≤ 0.5 | ✅ |
+| Draws with ≤ 1 wrong final verdict | **99.1%** | ≥ 95% | ✅ |
+| Coverage of the 80% pilot-calibrated interval @ 100 | **0.675** | ≥ 0.70 | ❌ |
+| Refused by the envelope guard | 2 of 47 | ≤ one third | ✅ |
+| Net cycler-cycles saved (pilots and reversals included) | **33%** | > 0 | ✅ |
+
+### **OFFICIAL GATE DECISION: KILL**
+
+The pre-registered rule kills on coverage whatever the other checks say. Provisional pull does not become the recommended workflow.
+
+**What held.** On a lot the design was never tuned on:
+- The shipped classifier alone would have issued **3.6 wrong verdicts**. That is the out-of-sample failure again, now on a second unseen batch.
+- The pilot audit cut that to **0.36** while still saving a third of the cycler time.
+- Final verdicts arrived on day 26 (median).
+
+The safety mechanism worked.
+
+**What failed, and why.** The 80% interval covered only 67.5% of cells, so it was over-confident. The lot breaks the model's central assumption that one offset per lot describes the lot:
+- **Its lives are bimodal:** 30 cells at 392–516 cycles and 9 cells at 777–1,186. It also mixes the lab's original charging structure with the "newstructure" variant introduced in this period.
+- **Scatter around the lot's own offset is 0.083 in log₁₀ life,** against the within-batch σ_w = 0.051 learned from the training batches.
+- The offset itself (intercept 2.03) is unremarkable, between the two training batches (2.15, 2.00). So the lot didn't *shift*; it was *heterogeneous*.
+
+**Batch warning (descriptive):** the lot's cycle-2 capacity (1.095 Ah) is *above* every training batch, outside the range in the opposite direction from batch 4. See the batch-warning study.
+
+**What this changes.** Two unseen batches now show the same thing: early verdicts are unsafe across batches without a lot-level check, and pilot cells supply one that catches most errors. But σ_w estimated from two homogeneous training batches is too optimistic for a heterogeneous lot. A redesign would estimate the within-lot scatter *from the pilots too*, which needs more than 4 pilots to be stable, and would stratify lots by protocol structure. That is a new design needing a new pre-registration and another fresh lot. It is recorded here, not attempted.
