@@ -16,9 +16,9 @@ A cockpit for cell qualification triage: **call pass/fail early — with honest 
 
 *Degradation-mode attribution, earned tier by tier: with C/18.5 diagnostics and chemistry-matched half-cell references, the full LLI / LAM_pe / LAM_ne split passes the pre-registered stability gate on 8/8 cells (ρ = 1.00). Cells with only 0.5C data get a qualitative hint with its stability score, LFP cells are marked muted, and the UI never shows a number the gate didn't earn.*
 
-![TRY IT — score your own cell CSV in the browser](docs/screenshots/try-it.png)
+![TRY IT — score raw cycler exports in the browser](docs/screenshots/try-it.png)
 
-*Drop a CSV of cycles 10 and 100, get a verdict scored entirely in the browser by the exported production model (parity-tested to 1e-6 against the Python pipeline). Nothing is uploaded anywhere.*
+*Drop raw exports from Arbin, Maccor, Neware or BioLogic cyclers, one file per cell, and get verdicts scored entirely in the browser by the exported production model. Binary formats get a plain instruction instead of a crash. The parser and scorer in `core.js` are checked against the Python pipeline in CI. Nothing is uploaded anywhere.*
 
 ## What's inside
 
@@ -31,7 +31,7 @@ A cockpit for cell qualification triage: **call pass/fail early — with honest 
 | [Out-of-sample batch](docs/out-of-sample-study.md) | Does the call hold on a batch it has never seen? | **No, and the failure is published.** On Attia et al.'s 2019 validation batch (same cell, stored longer), the frozen model fails its pre-registered gate: 5 wrong confirmed calls, ECE 0.27. The ΔQ signal still *ranks* cells (ρ = −0.83) but lives sit 18% below the Severson map, a silent shift no input guard can see. Verdicts stay scoped to calibrated batches |
 | [Spec threshold](docs/spec-threshold-study.md) | Can one model answer any spec, not just 700 cycles? | **Not yet.** A jackknife+ life model covers 93% (90% nominal) but its intervals are ~555 cycles wide, so at T=700 it saves 42% of cycler time vs the classifier's 67% and the pre-registered gate kills the spec slider. Off-distribution it is the robust one: 0–1 wrong calls per threshold on batch 4 where the classifier made 5 |
 | [Closed-loop selection](docs/closed-loop-study.md) | Can the early signal pick the next protocol to test? | **It ranks; the loop falls just short.** On batch 4's 9 protocols the predictor ranks them ρ = 0.88 despite a 30% level shift. Replayed campaigns find a top-cluster protocol with a third of run-to-failure's channel-days, short of the pre-registered quarter |
-| Browser scoring | Can you try it on your own cell? | **TRY IT tab**: drop a CSV of cycles 10 & 100, get a verdict scored entirely in the browser — the exported model matches the Python pipeline to 1e-6 (parity-tested), envelope guard included |
+| Browser scoring | Can you try it on your own cells? | **TRY IT tab**: drop raw cycler exports (**Arbin** CSV, **Maccor** text, **Neware** CSV, **BioLogic** .mpt, or a 3-column CSV), one file per cell, as many as you like, and get verdicts scored entirely in the browser. Parsing and scoring live in `core.js`, checked against the Python pipeline in CI (`tests/js/parity.mjs`: features to 1e-9, scores to 1e-6). Same thing from the shell: `scripts/score_files.py` |
 
 ## Chemistry targeting
 
@@ -54,5 +54,13 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
 The frontend is a no-build static SPA; `app/static/` also works on any static host.
+
+Score your own cycler exports without the browser:
+
+```bash
+.venv/bin/python scripts/score_files.py cell_01.csv cell_02.mpt   # table; --json for machine output
+```
+
+The newer studies each have one script that prints its gate result: `scripts/out_of_sample.py` (needs the 2019 batch file, URL in `src/matr_b4.py`), `scripts/spec_threshold.py`, `scripts/closed_loop.py`.
 
 Study notebooks: `notebooks/early_call_study.ipynb`, `notebooks/degradation_modes_study.ipynb` — each runs top-to-bottom on a fresh checkout and prints its result.

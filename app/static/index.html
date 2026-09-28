@@ -7,18 +7,18 @@
 <meta name="description" content="Tells you which battery cells will pass their life test from the first 100 cycles, with honest confidence: calibrated early calls, Venn-ABERS intervals, an explicit keep-testing verdict, and chemistry-aware degradation diagnostics.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hectocycle: call battery qualification months early">
-<meta property="og:description" content="Reads the first 100 cycles of a cell's life test and tells you which cells you can already call, with honest, calibrated confidence. Try it on your own CSV, in the browser.">
+<meta property="og:description" content="Reads the first 100 cycles of a cell's life test and tells you which cells you can already call, with honest, calibrated confidence. Try it on your own cycler exports, in the browser.">
 <meta property="og:url" content="https://hectocycle.com/">
 <meta property="og:image" content="https://hectocycle.com/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Hectocycle: call battery qualification months early">
-<meta name="twitter:description" content="Calibrated early pass/fail calls from the first 100 cycles, honest uncertainty intervals, and degradation diagnostics. Try it on your own cell CSV.">
+<meta name="twitter:description" content="Calibrated early pass/fail calls from the first 100 cycles, honest uncertainty intervals, and degradation diagnostics. Try it on your own cycler files.">
 <meta name="twitter:image" content="https://hectocycle.com/og.png">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1a17'/%3E%3Cpath d='M6 16h20' stroke='%23f7f4ea' stroke-width='2'/%3E%3Cpath d='M12 8v16M20 12v10' stroke='%23f7f4ea' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='20' cy='12' r='3' fill='%23d1202f'/%3E%3C/svg%3E">
 <link rel="preload" href="fonts/Archivo.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts/fonts.css">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -95,13 +95,14 @@
     <div class="welcome-actions">
       <button class="btn-primary" value="demo">See a worked example</button>
       <button class="btn-quiet" value="explore">Explore on my own</button>
-      <button class="btn-quiet" value="try">Try your own CSV</button>
+      <button class="btn-quiet" value="try">Try your own cycler files</button>
     </div>
   </form>
 </dialog>
 
 <div id="sr-status" class="visually-hidden" aria-live="polite"></div>
 
-<script src="app.js?v=8"></script>
+<script src="core.js?v=1"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

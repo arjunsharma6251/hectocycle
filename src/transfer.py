@@ -38,7 +38,7 @@ def envelope_violations(row, env):
 
 
 def _discharge_qv(cyc, deadband=0.05, min_pts=20):
-    """Discharge branch of one cycle as (V ascending, Q).
+    """Discharge branch of one cycle as (V strictly ascending, Q).
 
     `cyc` uses the BatteryLife keys (current_in_A, voltage_in_V,
     discharge_capacity_in_Ah); src/ingest.py normalises cycler files to them.
@@ -46,12 +46,16 @@ def _discharge_qv(cyc, deadband=0.05, min_pts=20):
     I = np.asarray(cyc["current_in_A"], float)
     V = np.asarray(cyc["voltage_in_V"], float)
     qd = np.asarray(cyc["discharge_capacity_in_Ah"], float)
-    m = I < -deadband
+    m = (I < -deadband) & (qd >= 0)
     if m.sum() < min_pts:
         return None
-    v, q = V[m], qd[m]
-    order = np.argsort(v)
-    return v[order], q[order]
+    # repeated voltage readings (cycler resolution) collapse to their mean
+    # capacity, so interpolation is well defined and order-independent
+    v, inv = np.unique(V[m], return_inverse=True)
+    q = np.bincount(inv, weights=qd[m]) / np.bincount(inv)
+    if len(v) < 2:
+        return None
+    return v, q
 
 
 def dq_stats(dq):

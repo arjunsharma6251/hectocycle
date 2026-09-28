@@ -29,7 +29,7 @@ jobs:
       # never be paired with newer HTML (stale skew renders as broken layout)
       - run: |
           V="${GITHUB_SHA::8}"
-          sed -i "s|href=\"style.css\"|href=\"style.css?v=$V\"|; s|src=\"app.js\"|src=\"app.js?v=$V\"|" app/static/index.html
+          sed -i -E "s#href=\"style\.css(\?v=[^\"]*)?\"#href=\"style.css?v=$V\"#; s#src=\"(app|core)\.js(\?v=[^\"]*)?\"#src=\"\1.js?v=$V\"#g" app/static/index.html
           sed -i "s|fetch(\"cockpit_data.json\")|fetch(\"cockpit_data.json?v=$V\")|" app/static/app.js
       - uses: actions/upload-pages-artifact@v3
         with:

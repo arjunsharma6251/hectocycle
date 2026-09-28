@@ -19,4 +19,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: node --check app/static/app.js
+      - run: node --check app/static/app.js && node --check app/static/core.js
+      - run: node tests/js/parity.mjs

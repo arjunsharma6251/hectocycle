@@ -1242,134 +1242,16 @@ function renderScience() {
   </article>`;
 }
 
-/* ---------- TRY IT: score your own cell, entirely in the browser ---------- */
+/* ---------- TRY IT: score your own cells, entirely in the browser ---------- */
+/* Parsing, features and scoring live in core.js (parity-tested against Python). */
 
-/* isotonic regression via pool-adjacent-violators; ties on x averaged first
-   (mirrors sklearn). Returns { ux, fitted }: fitted value per unique x. */
-function pava(xs, ys) {
-  const order = xs.map((_, i) => i).sort((a, b) => xs[a] - xs[b]);
-  const xsS = order.map((i) => xs[i]), ysS = order.map((i) => ys[i]);
-  const ux = [], uy = [], uw = [];
-  for (let i = 0; i < xsS.length; i++) {
-    if (ux.length && xsS[i] === ux[ux.length - 1]) {
-      const k = ux.length - 1;
-      uy[k] = (uy[k] * uw[k] + ysS[i]) / (uw[k] + 1);
-      uw[k] += 1;
-    } else { ux.push(xsS[i]); uy.push(ysS[i]); uw.push(1); }
-  }
-  const vals = [], wts = [], cnt = [];
-  for (let i = 0; i < uy.length; i++) {
-    vals.push(uy[i]); wts.push(uw[i]); cnt.push(1);
-    while (vals.length > 1 && vals[vals.length - 2] >= vals[vals.length - 1]) {
-      const n = vals.length;
-      const v = (vals[n - 2] * wts[n - 2] + vals[n - 1] * wts[n - 1]) / (wts[n - 2] + wts[n - 1]);
-      wts[n - 2] += wts[n - 1]; cnt[n - 2] += cnt[n - 1];
-      vals.pop(); wts.pop(); cnt.pop();
-      vals[vals.length - 1] = v;
-    }
-  }
-  const fitted = [];
-  for (let b = 0; b < vals.length; b++) for (let r = 0; r < cnt[b]; r++) fitted.push(vals[b]);
-  return { ux, fitted };
-}
+const scoreCell = (feats) => HectoCore.scoreCell(state.data.qual.model, state.data.qual.envelope, feats);
 
-function linearScore(params, x) {
-  let z = params.intercept;
-  for (let i = 0; i < x.length; i++) z += ((x[i] - params.mean[i]) / params.scale[i]) * params.coef[i];
-  return z;
-}
-
-function scoreCell(feats) {
-  const m = state.data.qual.model;
-  const x = m.features.map((f) => feats[f]);
-  const z = linearScore(m.point, x);
-  const xs = m.point.iso_x, ys = m.point.iso_y;
-  let p;
-  if (z <= xs[0]) p = ys[0];
-  else if (z >= xs[xs.length - 1]) p = ys[ys.length - 1];
-  else {
-    let i = 0;
-    while (xs[i + 1] < z) i++;
-    const t = xs[i + 1] === xs[i] ? 0 : (z - xs[i]) / (xs[i + 1] - xs[i]);
-    p = ys[i] + t * (ys[i + 1] - ys[i]);
-  }
-  const p0s = [], p1s = [];
-  for (const fold of m.cvap) {
-    const s0 = linearScore(fold, x);
-    for (const label of [0, 1]) {
-      const { ux, fitted } = pava([...fold.cal_scores, s0], [...fold.cal_labels, label]);
-      let idx = ux.findIndex((v) => v >= s0);
-      if (idx === -1) idx = ux.length - 1;
-      (label === 0 ? p0s : p1s).push(fitted[idx]);
-    }
-  }
-  const mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
-  const p0 = mean(p0s), p1 = mean(p1s);
-  const env = state.data.qual.envelope;
-  const violations = m.features.filter((f) => feats[f] < env[f][0] || feats[f] > env[f][1]);
-  const verdict = violations.length ? "out-of-envelope" : (p0 > 0.5 ? "pass" : p1 < 0.5 ? "fail" : "keep-testing");
-  return { p, p0, p1, verdict, violations, feats };
-}
-
-/* CSV -> DeltaQ(V) features. Expects discharge points for cycles ~10 and ~100. */
-function featurizeCsv(text) {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim());
-  if (lines.length < 20) throw new Error("That file looks too short. Expected discharge time-series rows for cycles 10 and 100.");
-  const header = lines[0].toLowerCase().split(",").map((h) => h.trim());
-  const col = (names) => header.findIndex((h) => names.some((n) => h === n || h.startsWith(n)));
-  const ci = col(["cycle"]);
-  const vi = col(["voltage", "v"]);
-  const qi = col(["discharge_capacity", "capacity", "q"]);
-  if (ci === -1 || vi === -1 || qi === -1)
-    throw new Error("Could not find the columns. The header must include cycle, voltage_v, and discharge_capacity_ah (see the sample file).");
-  const byCycle = new Map();
-  for (let i = 1; i < lines.length; i++) {
-    const parts = lines[i].split(",");
-    const c = Math.round(+parts[ci]), v = +parts[vi], q = +parts[qi];
-    if (!Number.isFinite(c) || !Number.isFinite(v) || !Number.isFinite(q)) continue;
-    if (!byCycle.has(c)) byCycle.set(c, []);
-    byCycle.get(c).push([v, q]);
-  }
-  const nearest = (target, tol) => {
-    let best = null;
-    for (const c of byCycle.keys()) if (Math.abs(c - target) <= tol && (best === null || Math.abs(c - target) < Math.abs(best - target))) best = c;
-    return best;
-  };
-  const cE = nearest(10, 3), cL = nearest(100, 5);
-  if (cE === null || cL === null)
-    throw new Error(`Need discharge data at cycle ~10 and cycle ~100. Found cycles: ${[...byCycle.keys()].sort((a, b) => a - b).slice(0, 12).join(", ")}${byCycle.size > 12 ? "…" : ""}`);
-  const seg = (c) => {
-    const pts = byCycle.get(c).filter((p) => p[1] >= 0).sort((a, b) => a[0] - b[0]);
-    if (pts.length < 20) throw new Error(`Cycle ${c} has only ${pts.length} usable points. A full discharge branch is needed.`);
-    return pts;
-  };
-  const A = seg(cE), B = seg(cL);
-  const vLo = Math.max(A[0][0], B[0][0]) + 0.01;
-  const vHi = Math.min(A[A.length - 1][0], B[B.length - 1][0]) - 0.01;
-  if (vHi <= vLo) throw new Error("The two cycles' voltage ranges do not overlap. Check that the voltage column is in volts.");
-  const interp = (pts, v) => {
-    let i = 0;
-    while (i < pts.length - 2 && pts[i + 1][0] < v) i++;
-    const [v0, q0] = pts[i], [v1, q1] = pts[i + 1];
-    return v1 === v0 ? q0 : q0 + (q1 - q0) * (v - v0) / (v1 - v0);
-  };
-  const N = 1000, dq = [];
-  for (let k = 0; k < N; k++) {
-    const v = vLo + (k / (N - 1)) * (vHi - vLo);
-    dq.push(interp(B, v) - interp(A, v));
-  }
-  const meanDq = dq.reduce((s, v) => s + v, 0) / N;
-  const varDq = dq.reduce((s, v) => s + (v - meanDq) ** 2, 0) / N;
-  const minDq = Math.min(...dq);
-  const EPS = 1e-12;
-  return {
-    feats: {
-      log_var_dq: Math.log10(varDq + EPS),
-      log_min_dq: Math.log10(Math.abs(minDq) + EPS),
-      log_mean_dq: Math.log10(Math.abs(meanDq) + EPS),
-    },
-    cycles: [cE, cL], nPts: [A.length, B.length],
-  };
+async function readFileText(file) {
+  const buf = await file.arrayBuffer();
+  const text = new TextDecoder("utf-8").decode(buf);
+  // BioLogic exports are Latin-1; re-decode if UTF-8 produced replacement characters
+  return text.slice(0, 2000).includes("�") ? new TextDecoder("latin1").decode(buf) : text;
 }
 
 function renderTry() {
@@ -1378,14 +1260,14 @@ function renderTry() {
   pane.dataset.rendered = "1";
   pane.innerHTML = `
   <div class="reading">
-    <h2>Drop a CSV. Get a verdict. Nothing leaves your browser.</h2>
-    <p class="lead">Export the discharge time-series of <strong>cycle 10</strong> and <strong>cycle 100</strong> from your cycler as three columns: <span class="mono">cycle, voltage_v, discharge_capacity_ah</span>. Hectocycle computes the ΔQ(V) features and scores them with the exact production model: the same coefficients, the same calibration, the same envelope guard. All of it runs locally.</p>
-    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose a cell CSV to score">
+    <h2>Drop cycler files. Get verdicts. Nothing leaves your browser.</h2>
+    <p class="lead">Export the time series covering <strong>cycle 10</strong> and <strong>cycle 100</strong> straight from your cycler: <strong>Arbin</strong> CSV, <strong>Maccor</strong> text, <strong>Neware</strong> CSV or <strong>BioLogic</strong> .mpt, or three columns <span class="mono">cycle, voltage_v, discharge_capacity_ah</span>. Drop one file per cell, as many as you like. Hectocycle finds the discharge branches, computes the ΔQ(V) features and scores them with the exact production model: the same coefficients, the same calibration, the same envelope guard. All of it runs locally.</p>
+    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose cycler files to score">
       <svg><use href="#i-upload"/></svg>
-      <span class="dz-main">Drop your CSV here, or click to choose</span>
+      <span class="dz-main">Drop files here, or click to choose</span>
       <span class="dz-sub"><a href="sample_cell.csv" download id="sample-link">Download a sample file</a>: a real Sandia LFP cell this model never trained on</span>
     </div>
-    <input type="file" id="try-file" accept=".csv,text/csv" hidden>
+    <input type="file" id="try-file" accept=".csv,.txt,.mpt,.tsv,text/csv,text/plain" multiple hidden>
     <div id="try-result"></div>
   </div>`;
   const dz = pane.querySelector("#dropzone");
@@ -1394,52 +1276,97 @@ function renderTry() {
   dz.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
   dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("drag"); });
   dz.addEventListener("dragleave", () => dz.classList.remove("drag"));
-  dz.addEventListener("drop", (e) => { e.preventDefault(); dz.classList.remove("drag"); if (e.dataTransfer.files[0]) handleTryFile(e.dataTransfer.files[0]); });
-  input.addEventListener("change", () => { if (input.files[0]) handleTryFile(input.files[0]); });
+  dz.addEventListener("drop", (e) => { e.preventDefault(); dz.classList.remove("drag"); handleTryFiles([...e.dataTransfer.files]); });
+  input.addEventListener("change", () => { handleTryFiles([...input.files]); input.value = ""; });
 }
 
-function handleTryFile(file) {
+async function scoreFile(file) {
+  if (file.size > 12 * 1024 * 1024)
+    return { name: file.name, error: `That file is ${(file.size / 1048576).toFixed(0)} MB. Export only the cycles around 10 and 100 (a few thousand rows) and try again.` };
+  try {
+    const parsed = HectoCore.featurizeText(await readFileText(file), file.name);
+    return { name: file.name, parsed, r: scoreCell(parsed.feats) };
+  } catch (err) {
+    return { name: file.name, error: err instanceof HectoCore.IngestError ? err.message : `Could not read this file (${err.message}).` };
+  }
+}
+
+async function handleTryFiles(files) {
   const out = document.getElementById("try-result");
   out.innerHTML = "";
-  if (file.size > 12 * 1024 * 1024) {
-    html("div", "try-error", out, `That file is ${(file.size / 1048576).toFixed(0)} MB. Export only cycles 10 and 100 (a few thousand rows) and try again.`);
+  if (!files.length) return;
+  const results = await Promise.all(files.map(scoreFile));
+  if (results.length === 1) {
+    const res = results[0];
+    if (res.error) html("div", "try-error", out, res.error);
+    else renderTryCard(out, res);
     return;
   }
-  const reader = new FileReader();
-  reader.onload = () => {
-    let parsed;
-    try { parsed = featurizeCsv(reader.result); }
-    catch (err) { html("div", "try-error", out, err.message); return; }
-    const r = scoreCell(parsed.feats);
-    const card = html("div", "try-result", out);
-    const head = html("div", "insp-head", card);
-    const t = html("div", "", head);
-    html("div", "insp-title", t, file.name);
-    html("div", "insp-sub", t, `ΔQ(V) from cycles ${parsed.cycles[0]} → ${parsed.cycles[1]} · ${parsed.nPts[0]} + ${parsed.nPts[1]} points · scored in your browser`);
-    const cons = html("div", `consequence ${r.verdict}`, card);
-    cons.textContent = {
-      pass: "Call it: this cell can come off the cycler.",
-      fail: "Call it: reject early and reallocate the channel.",
-      "keep-testing": "Keep testing: the interval straddles the decision line.",
-      "out-of-envelope": `Refused: ${r.violations.map((f) => FEATURE_LABEL[f]).join(" and ")} outside the training envelope. The model refuses rather than extrapolate.`,
-    }[r.verdict];
-    const s = section(card, r.verdict === "out-of-envelope" ? "What the model would have said (not earned)" : "Record");
-    if (r.verdict !== "out-of-envelope") {
-      const ib = html("div", "", s); ib.style.margin = "4px 0 12px";
-      ib.appendChild(intervalBar({ p_pass: r.p, p_lo: r.p0, p_hi: r.p1, verdict: r.verdict }));
+  const scored = results.filter((x) => !x.error);
+  const counts = ["pass", "fail", "keep-testing", "out-of-envelope"].map((v) => [v, scored.filter((x) => x.r.verdict === v).length]).filter(([, n]) => n);
+  html("p", "try-summary", out, `${results.length} files · ${counts.map(([v, n]) => `${n} ${VERDICT_TEXT[v].toLowerCase()}`).join(" · ")}${results.length - scored.length ? ` · ${results.length - scored.length} unreadable` : ""}`);
+  const table = html("table", "try-batch", out);
+  table.innerHTML = `<thead><tr><th>file</th><th class="num opt">cycles</th><th>verdict</th><th>P(pass) and interval</th></tr></thead>`;
+  const tbody = html("tbody", "", table);
+  const detail = html("div", "", out);
+  const rows = [];
+  results.forEach((res, i) => {
+    const tr = html("tr", res.error ? "err" : "", tbody);
+    rows.push(tr);
+    const nameTd = html("td", "name", tr);
+    html("span", "fname", nameTd, res.name).title = res.name;
+    if (res.error) {
+      const td = html("td", "try-row-error", tr, res.error);
+      td.colSpan = window.matchMedia("(max-width: 640px)").matches ? 2 : 3;
+      return;
     }
-    kvList(s, [
-      [`Calibrated P(pass ≥ ${T()} cycles)`, fmt(r.p, 3)],
-      ["Venn-ABERS interval", `[${fmt(r.p0, 3)}, ${fmt(r.p1, 3)}]`],
-      ...state.data.qual.model.features.map((f) => {
-        const [lo, hi] = state.data.qual.envelope[f];
-        const ok = r.feats[f] >= lo && r.feats[f] <= hi;
-        return [FEATURE_LABEL[f], `${fmt(r.feats[f], 3)} · ${ok ? "in envelope" : `outside [${fmt(lo)}, ${fmt(hi)}]`}`, ok ? "" : "flag"];
-      }),
-    ]);
-    html("p", "note", s, `Frame of reference: the model was trained on 1.1 Ah LFP fast-charge cells against a ${T()}-cycle spec. For other chemistries or specs, treat this as an out-of-distribution demonstration; the envelope guard exists for exactly that reason.`);
-  };
-  reader.readAsText(file);
+    html("span", "fvendor", nameTd, res.parsed.vendor);
+    html("td", "num opt", tr, `${res.parsed.cycles[0]} → ${res.parsed.cycles[1]}`);
+    html("td", "", tr).appendChild(verdictMark(res.r.verdict));
+    const td = html("td", "", tr);
+    if (res.r.verdict !== "out-of-envelope") td.appendChild(intervalBar({ p_pass: res.r.p, p_lo: res.r.p0, p_hi: res.r.p1, verdict: res.r.verdict }));
+    else html("span", "muted", td, "not scored");
+    tr.tabIndex = 0;
+    const open = () => {
+      rows.forEach((r) => r.classList.remove("sel"));
+      tr.classList.add("sel");
+      detail.innerHTML = "";
+      renderTryCard(detail, res);
+    };
+    tr.addEventListener("click", open);
+    tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+  });
+  announce(`${results.length} files scored.`);
+}
+
+function renderTryCard(out, { name, parsed, r }) {
+  const card = html("div", "try-result", out);
+  const head = html("div", "insp-head", card);
+  const t = html("div", "", head);
+  html("div", "insp-title", t, name);
+  html("div", "insp-sub", t, `${parsed.vendor} · ΔQ(V) from cycles ${parsed.cycles[0]} → ${parsed.cycles[1]} · ${parsed.nPoints[0]} + ${parsed.nPoints[1]} discharge points · scored in your browser`);
+  const cons = html("div", `consequence ${r.verdict}`, card);
+  cons.textContent = {
+    pass: "Call it: this cell can come off the cycler.",
+    fail: "Call it: reject early and reallocate the channel.",
+    "keep-testing": "Keep testing: the interval straddles the decision line.",
+    "out-of-envelope": `Refused: ${r.violations.map((f) => FEATURE_LABEL[f]).join(" and ")} outside the training envelope. The model refuses rather than extrapolate.`,
+  }[r.verdict];
+  const s = section(card, r.verdict === "out-of-envelope" ? "What the model would have said (not earned)" : "Record");
+  if (r.verdict !== "out-of-envelope") {
+    const ib = html("div", "", s); ib.style.margin = "4px 0 12px";
+    ib.appendChild(intervalBar({ p_pass: r.p, p_lo: r.p0, p_hi: r.p1, verdict: r.verdict }));
+  }
+  kvList(s, [
+    [`Calibrated P(pass ≥ ${T()} cycles)`, fmt(r.p, 3)],
+    ["Venn-ABERS interval", `[${fmt(r.p0, 3)}, ${fmt(r.p1, 3)}]`],
+    ...state.data.qual.model.features.map((f) => {
+      const [lo, hi] = state.data.qual.envelope[f];
+      const ok = r.feats[f] >= lo && r.feats[f] <= hi;
+      return [FEATURE_LABEL[f], `${fmt(r.feats[f], 3)} · ${ok ? "in envelope" : `outside [${fmt(lo)}, ${fmt(hi)}]`}`, ok ? "" : "flag"];
+    }),
+  ]);
+  html("p", "note", s, `Frame of reference: the model was trained on 1.1 Ah LFP fast-charge cells from three 2017–18 batches against a ${T()}-cycle spec. On a later batch of the same cell it failed its out-of-sample gate (see Gates), so treat verdicts on your cells as a demonstration unless they come from a batch it was calibrated on.`);
 }
 
 /* ---------- fleet switch, search, boot ---------- */
