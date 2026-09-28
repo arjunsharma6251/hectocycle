@@ -122,3 +122,24 @@ One command then runs the frozen gate:
 ```bash
 .venv/bin/python scripts/batch_recal.py --source files --paths lot/*.csv --name <lot> --minutes-per-cycle <measured>
 ```
+
+## 4. Addendum: a public candidate lot (pre-registered before the file was opened)
+
+**How it was found.** The bucket that serves the published MATR data (`s3.amazonaws.com/publications.matr.io/1/final_data/`) can be listed publicly. It holds a batch never linked from the data page or any paper: `2018-02-20_batchdata_updated_struct_errorcorrect.mat` (2.02 GB, uploaded 2020-06-11). The lab's public analysis code names a 2018-02-20 batch among runs beyond the four released ones.
+
+**What was seen before this section was written:**
+- the file name, size and upload date
+- that the same code lists only the four released batches as run to 80% capacity
+
+The file had not been downloaded when this was written, and no cell, curve, feature or life from it has been read.
+
+**Interpretation of "not previously published".** The lot is publicly accessible but was never released or used in a publication, and it has never been used by this project. That is taken to satisfy the Phase C requirement: what matters for the gate is that the frozen design was never tuned on it.
+
+**Eligibility, checked by code before any gate metric** (`scripts/batch_recal.py --source matr-mat`). The lot is *ineligible* and the gate does not run if any of these fails:
+- **E1:** at least 20 cells load with cycle-10 and cycle-100 data.
+- **E2:** same discharge: across cells, the median discharge current at cycle 10 is within 4C ± 10%.
+- **E3:** same thermal conditions: the median cell temperature at cycle 10 is within the range of the Severson training cells ± 2 °C.
+
+**Then, exactly as frozen in §1:** censored cells (logs ending above 80%) are excluded from the gate. The lot is *uninformative* with fewer than 5 labelled cells on either side of T = 700. Otherwise the §1 fresh-lot gate decides BUILD, RESCOPE or KILL.
+
+**Stated in advance:** because the lab's own code marks only the four released batches as run to 80%, this lot may well be mostly censored and come out uninformative.
