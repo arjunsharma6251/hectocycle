@@ -68,3 +68,25 @@ def test_cli_scores_fixtures_like_the_browser(capsys):
     assert [r["verdict"] for r in ok] == ["pass", "pass"]
     assert abs(ok[0]["p0"] - 0.717) < 1e-3 and ok[0]["p0"] == ok[1]["p0"]
     assert "binary Neware" in out["results"][2]["error"]
+
+
+REAL = os.path.join(ROOT, "tests", "fixtures", "real")
+
+
+@pytest.mark.parametrize("name,vendor", [("arbin_matr_fastcharge.csv", "Arbin"), ("maccor_diagnostic.070", "Maccor"),
+                                         ("neware_nested.csv", "Neware"), ("biologic_btlab.mpt", "BioLogic")])
+def test_real_exports_parse(name, vendor):
+    enc = "utf-8" if name.startswith("arbin") else "latin-1"
+    v, cycles = read_text(open(os.path.join(REAL, name), encoding=enc).read(), name)
+    assert v == vendor and len(cycles) >= 2
+    qmax = max(max(d["discharge_capacity_in_Ah"]) for d in cycles.values())
+    assert 0.5 < qmax < 5  # amp-hours, not mAh
+    for d in cycles.values():  # discharge capacity never restarts inside a cycle's discharge
+        q = [q for q, i in zip(d["discharge_capacity_in_Ah"], d["current_in_A"]) if i < -0.05]
+        if vendor in ("Maccor", "Neware"):
+            assert all(b >= a - 1e-9 for a, b in zip(q, q[1:]))
+
+
+def test_real_matr_cell_has_a123_capacity():
+    _, cycles = read_text(open(os.path.join(REAL, "arbin_matr_fastcharge.csv")).read(), "x.csv")
+    assert 1.0 < max(cycles[2]["discharge_capacity_in_Ah"]) < 1.12  # 1.1 Ah A123

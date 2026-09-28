@@ -103,6 +103,8 @@ The rehearsal says nothing about the offset model. Two independent reasons, the 
 - **constant-current discharge** at the Severson rate (4C to 2.0 V)
 - **logs that run past 80% of nominal capacity**
 
+*Note:* the raw-curve featurizer was later clipped to Severson's 2.0–3.5 V window (see the out-of-sample study, deviation note). The rehearsal was run before that change and was not rerun; reason 2 (no measured lives) makes it uninformative either way.
+
 The pipeline itself ran end to end on untouched BatteryLife data: loading, featurizing at every checkpoint, the envelope guard, and a clean "uninformative" verdict instead of a crash or a number.
 
 ## 3. Status

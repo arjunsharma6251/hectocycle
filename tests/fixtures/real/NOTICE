@@ -1,0 +1,9 @@
+Fixtures in this directory are thinned excerpts of test files from TRI's beep
+(https://github.com/TRI-AMDD/beep/tree/main/tests/test_files), Copyright Toyota Research Institute, licensed under the Apache License 2.0
+(http://www.apache.org/licenses/LICENSE-2.0). Modification: data rows subsampled and
+truncated to the first cycles by scripts/make_real_fixtures.py; headers kept verbatim.
+
+arbin_matr_fastcharge.csv  <-  2017-12-04_4_65C-69per_6C_CH29.csv
+maccor_diagnostic.070  <-  xTESLADIAG_000019_CH70.070
+biologic_btlab.mpt  <-  test_loopsnewoutput_MB_CE1_short10k.txt
+neware_nested.csv  <-  raw/neware_test.csv

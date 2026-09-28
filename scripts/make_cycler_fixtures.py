@@ -131,7 +131,28 @@ def parity_expectations():
         ivs = [venn_abers(fold, fold_score(fold, x)) for fold in model["cvap"]]
         scores.append({"feats": v, "p": float(score_point(model["point"], x)),
                        "p0": float(np.mean([a for a, _ in ivs])), "p1": float(np.mean([b for _, b in ivs]))})
-    return {"features": feats, "scores": scores}
+    return {"features": feats, "scores": scores, "real": real_structure()}
+
+
+def real_structure():
+    """Per-cycle structure src/ingest.py reads from the thinned real exports
+    (tests/fixtures/real/, from scripts/make_real_fixtures.py)."""
+    from src.ingest import read_text
+
+    real = os.path.join(ROOT, "tests", "fixtures", "real")
+    out = {}
+    for name in sorted(os.listdir(real)):
+        if name == "NOTICE":
+            continue
+        enc = "latin-1" if name.endswith((".mpt", ".070")) or name.startswith("neware") else "utf-8"
+        vendor, cycles = read_text(open(os.path.join(real, name), encoding=enc, newline="").read(), name)
+        out[name] = {"encoding": enc, "vendor": vendor,
+                     "cycles": {str(c): {"n": len(d["voltage_in_V"]),
+                                         "n_dis": int(np.sum(np.asarray(d["current_in_A"]) < -0.05)),
+                                         "q_max": float(np.max(d["discharge_capacity_in_Ah"])),
+                                         "v_sum": float(np.sum(d["voltage_in_V"]))}
+                                for c, d in sorted(cycles.items())}}
+    return out
 
 
 def main():

@@ -34,6 +34,23 @@ exp.scores.forEach((s, i) => {
   check(`score[${i}].p1`, r.p1, s.p1, 1e-6);
 });
 
+let nReal = 0;
+for (const [file, want] of Object.entries(exp.real || {})) {
+  const text = readFileSync(join(root, "tests", "fixtures", "real", file), want.encoding === "latin-1" ? "latin1" : "utf8");
+  const { vendor, cycles } = core.readText(text, file);
+  if (vendor !== want.vendor) { failures++; console.error(`FAIL ${file}: vendor ${vendor} != ${want.vendor}`); }
+  const gotKeys = [...cycles.keys()].sort((a, b) => a - b).map(String);
+  if (gotKeys.join() !== Object.keys(want.cycles).join()) { failures++; console.error(`FAIL ${file}: cycles ${gotKeys} != ${Object.keys(want.cycles)}`); continue; }
+  for (const [c, w] of Object.entries(want.cycles)) {
+    const d = cycles.get(+c);
+    check(`${file} c${c} n`, d.V.length, w.n, 0);
+    check(`${file} c${c} n_dis`, d.I.filter((x) => x < -0.05).length, w.n_dis, 0);
+    check(`${file} c${c} q_max`, Math.max(...d.Q), w.q_max, 1e-9);
+    check(`${file} c${c} v_sum`, d.V.reduce((s, x) => s + x, 0), w.v_sum, 1e-6);
+  }
+  nReal++;
+}
+
 for (const [text, name, pattern] of [
   ["", "run.ndax", /Export it/],
   ["a,b,c\n" + "1,2,3\n".repeat(30), "x.csv", /Could not find/],
@@ -44,4 +61,4 @@ for (const [text, name, pattern] of [
 
 const n = Object.keys(exp.features).length;
 if (failures) { console.error(`${failures} parity failure(s)`); process.exit(1); }
-console.log(`parity ok: ${n} files x 3 features, ${exp.scores.length} scores x 3, 2 error paths`);
+console.log(`parity ok: ${n} files x 3 features, ${exp.scores.length} scores x 3, ${nReal} real exports (per-cycle structure), 2 error paths`);

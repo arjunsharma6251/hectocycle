@@ -98,7 +98,7 @@ An input-envelope guard cannot detect this kind of shift, even in principle. Tha
 
 **Labels.** 43/45 cycle lives match BatteryLife's labels exactly, after BatteryLife's end-of-life index offset of one cycle. Two disagree: b4c38 is 1166 here vs 1055 there, and b4c40 is 1089 vs 871. Both are far above T, so no label is affected.
 
-**Deviation from §0, disclosed.** The featurizer pre-condition did not apply. b4 was taken from MATR's own `.mat` release (data.matr.io file `5dcef152110002c7215b2c90`), not the BatteryLife mirror, because the mirror was throttled to under 1 MB/s. That file carries Severson's pre-interpolated `Qdlin`, so b4 goes through *exactly* the training featurizer, and the raw-curve parity check had nothing to check.
+**Deviation from §0, disclosed.** The featurizer pre-condition did not apply. b4 was taken from MATR's own `.mat` release (data.matr.io file `5dcef152110002c7215b2c90`), not the BatteryLife mirror, because the mirror was throttled to under 1 MB/s. That file carries Severson's pre-interpolated `Qdlin`, so b4 goes through *exactly* the training featurizer, and the raw-curve parity check had nothing to check. The check was later run anyway, because every real file a user uploads goes through the raw-curve path (`scripts/raw_vs_qdlin.py`, all 124 Severson cells). It first showed a small bias from the 3.5–3.6 V top of the raw discharge, which Severson's grid excludes. That changed 3 of 83 test verdicts, none of them wrong. After clipping the raw featurizer to the same 2.0–3.5 V window, the median difference is ≤ 0.002 on every feature (ρ ≥ 0.9996), with zero verdict changes.
 
 ## 3. What this changes
 

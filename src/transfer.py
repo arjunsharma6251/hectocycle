@@ -67,14 +67,21 @@ def dq_stats(dq):
     }
 
 
-def dq_features_from_cycles(cycles, cyc_late=100, cyc_early=10, n_grid=1000):
+V_WINDOW = (2.0, 3.5)  # Severson's Qdlin grid; see scripts/raw_vs_qdlin.py
+
+
+def dq_features_from_cycles(cycles, cyc_late=100, cyc_early=10, n_grid=1000, v_window=V_WINDOW):
     """Severson-style DeltaQ(V) statistics from raw per-cycle curves.
 
     `cycles` maps cycle number -> {current_in_A, voltage_in_V,
     discharge_capacity_in_Ah}. Q(V) at the early and late cycles is
     interpolated onto a shared voltage grid spanning the overlap of the two
-    discharge branches. Returns None if either cycle is missing or has no
-    usable discharge segment.
+    discharge branches (trimmed 10 mV at each end), clipped to Severson's
+    2.0-3.5 V Qdlin window. The clip is what makes raw-curve features match
+    the Qdlin features the model trained on: without it the 3.5-3.6 V top of
+    the discharge adds a bias (checked on all 124 Severson cells,
+    figures/raw_vs_qdlin.json). Returns None if either cycle is missing or
+    has no usable discharge segment.
     """
     if cyc_early not in cycles or cyc_late not in cycles:
         return None
@@ -83,6 +90,8 @@ def dq_features_from_cycles(cycles, cyc_late=100, cyc_early=10, n_grid=1000):
         return None
     v_lo = max(a[0][0], b[0][0]) + 0.01
     v_hi = min(a[0][-1], b[0][-1]) - 0.01
+    if v_window is not None:
+        v_lo, v_hi = max(v_lo, v_window[0]), min(v_hi, v_window[1])
     if v_hi <= v_lo:
         return None
     grid = np.linspace(v_lo, v_hi, n_grid)

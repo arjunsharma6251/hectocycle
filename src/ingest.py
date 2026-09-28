@@ -8,7 +8,9 @@ Supported (text exports; binary formats get a friendly "export as text" error):
   so discharge rows come from State == D and capacity is accumulated across a
   cycle's discharge steps.
 - Neware BTS CSV: Cycle ID / Cycle Index, Current(mA|A), Voltage(V),
-  Capacitance_DChg(mAh) / DChg. Cap.(Ah)
+  Capacitance_DChg(mAh) / DChg. Cap.(Ah); also the nested BTS export, where
+  cycle, step and record rows interleave (records indented by two empty
+  fields, capacity restarting every step, discharge steps named *DChg*)
 - BioLogic EC-Lab .mpt: "Nb header lines : N" preamble; cycle number, Ewe/V or
   Ecell/V, I/mA or <I>/mA, Q discharge/mA.h; decimal commas accepted
 - Hectocycle CSV: cycle, voltage_v, discharge_capacity_ah (discharge rows only)
@@ -83,6 +85,51 @@ def _refuse_binary(filename):
                           "software as text (CSV, TXT or MPT) and try again.")
 
 
+class _Segments:
+    """Discharge segments from step-structured exports (Maccor, nested Neware).
+
+    A segment is a run of discharge rows not interrupted by charging; its
+    capacity is accumulated across consecutive discharge steps (the exports
+    restart capacity every step). A cycler procedure that loops without
+    advancing the cycle counter yields many segments per cycle number; then
+    segments are numbered as cycles. Otherwise a cycle with several
+    discharges (diagnostic pulses) keeps its largest one.
+    """
+
+    def __init__(self):
+        self.rows, self.seg, self.cycle, self.step = [], -1, None, None
+        self.offset = self.last_q = 0.0
+        self.charged = True
+
+    def charge(self):
+        self.charged = True
+
+    def discharge(self, cycle, step, v, q):
+        if self.charged or cycle != self.cycle:
+            self.seg += 1
+            self.offset = self.last_q = 0.0
+        elif step != self.step:
+            self.offset += self.last_q
+        self.charged, self.cycle, self.step, self.last_q = False, cycle, step, q
+        self.rows.append((self.seg, cycle, v, q + self.offset))
+
+    def cycles(self):
+        segs = {}
+        for seg, c, v, q in self.rows:
+            segs.setdefault(seg, [c, [], []])
+            segs[seg][1].append(v)
+            segs[seg][2].append(q)
+        n_cyc = len({c for c, _, _ in segs.values()})
+        renumber = len(segs) > 1.5 * n_cyc
+        best = {}
+        for i, (seg, (c, vs, qs)) in enumerate(sorted(segs.items())):
+            key = i + 1 if renumber else c
+            if key not in best or max(qs) > max(best[key][1]):
+                best[key] = (vs, qs)
+        return {k: {"current_in_A": [-1.0] * len(vs), "voltage_in_V": vs, "discharge_capacity_in_Ah": qs}
+                for k, (vs, qs) in sorted(best.items())}
+
+
 def read_text(text, filename=""):
     """(vendor, {cycle: {current_in_A, voltage_in_V, discharge_capacity_in_Ah}})."""
     _refuse_binary(filename)
@@ -98,6 +145,10 @@ def read_text(text, filename=""):
             if "cyc" in fields or "cyclec" in fields:
                 vendor, start = "Maccor", i
                 break
+    if vendor is None:
+        nested = _neware_nested([ln for ln in lines if ln.strip()])
+        if nested is not None:
+            return "Neware", nested
     body = [ln for ln in lines[start:] if ln.strip()]
     if len(body) < 20:
         raise IngestError("That file looks too short. Expected discharge time-series rows for cycles 10 and 100.")
@@ -112,12 +163,12 @@ def read_text(text, filename=""):
                           "Maccor, Neware and BioLogic text exports, or cycle,voltage_v,discharge_capacity_ah.")
     if vendor is None:
         names = {n for n, _ in cols}
-        vendor = ("Arbin" if "cycleindex" in names else "Neware" if names & {"cycleid", "capacitancedchg", "dchgcap"}
+        vendor = ("BioLogic" if names & {"ewe", "ecell", "qdischarge"} else "Arbin" if "cycleindex" in names
+                  else "Neware" if names & {"cycleid", "capacitancedchg", "dchgcap"}
                   else "Hectocycle CSV" if ii == -1 else "CSV")
     vs, qs, is_ = SCALE.get(cols[vi][1], 1.0), SCALE.get(cols[qi][1], 1.0), SCALE.get(cols[ii][1], 1.0) if ii != -1 else 1.0
 
-    cycles = {}
-    offset, last_q, last_key = 0.0, 0.0, None
+    cycles, segs = {}, _Segments()
     for r in rows:
         if len(r) <= max(ci, vi, qi, ii, si, ti):
             continue
@@ -125,17 +176,14 @@ def read_text(text, filename=""):
         if not (np.isfinite(c) and np.isfinite(v) and np.isfinite(q)):
             continue
         c = int(round(c))
-        if si != -1:  # Maccor: state flags discharge; capacity restarts every step
-            if not r[si].strip().upper().startswith("D"):
-                continue
-            key = (c, r[ti].strip() if ti != -1 else "")
-            if last_key is None or key[0] != last_key[0]:
-                offset = 0.0
-            elif key != last_key:
-                offset += last_q
-            last_key, last_q = key, q
-            q, cur = q + offset, -1.0
-        elif ii != -1:
+        if si != -1:  # Maccor: state flags charge / discharge; capacity restarts every step
+            state = r[si].strip().upper()
+            if state.startswith("C"):
+                segs.charge()
+            elif state.startswith("D"):
+                segs.discharge(c, r[ti].strip() if ti != -1 else "", v, q)
+            continue
+        if ii != -1:
             cur = _num(r[ii]) * is_
             if not np.isfinite(cur):
                 continue
@@ -145,7 +193,36 @@ def read_text(text, filename=""):
         d["current_in_A"].append(cur)
         d["voltage_in_V"].append(v)
         d["discharge_capacity_in_Ah"].append(q)
-    return vendor, cycles
+    return vendor, (segs.cycles() if si != -1 else cycles)
+
+
+def _neware_nested(lines):
+    """{cycle: {...}} from a nested Neware export, or None if it isn't one."""
+    import csv
+    rows = list(csv.reader(lines))
+    if len(rows) < 4 or parse_header(rows[0][0])[0] not in CYCLE:
+        return None
+    rec = [parse_header(h) for h in rows[2]]
+    if len(rows[1]) < 3 or len(rows[2]) < 3 or rows[2][0].strip() or rows[2][1].strip():
+        return None
+    vi, ii, qi = _find(rec, VOLT), _find(rec, CURR), _find(rec, {"capacity"})
+    if min(vi, ii, qi) < 0:
+        return None
+    vs, qs = SCALE.get(rec[vi][1], 1.0), SCALE.get(rec[qi][1], 1.0)
+    segs, cyc, step, dis = _Segments(), None, "", False
+    for r in rows[3:]:
+        if r and r[0].strip():                      # cycle row
+            cyc = int(round(_num(r[0])))
+        elif len(r) > 2 and r[1].strip():           # step row
+            step, name = r[1].strip(), r[2].strip().lower()
+            dis = "dchg" in name
+            if "chg" in name and not dis:
+                segs.charge()
+        elif cyc is not None and dis and len(r) > max(vi, ii, qi):
+            v, q = _num(r[vi]) * vs, _num(r[qi]) * qs
+            if np.isfinite(v) and np.isfinite(q):
+                segs.discharge(cyc, step, v, q)
+    return segs.cycles()
 
 
 def _nearest(cycles, target, tol):

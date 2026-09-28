@@ -12,6 +12,7 @@
   const DEADBAND_A = 0.05;
   const EARLY = [10, 3], LATE = [100, 5];
   const EPS = 1e-12;
+  const V_WINDOW = [2.0, 3.5];
   const DQ_FEATURES = ["log_var_dq", "log_min_dq", "log_mean_dq"];
 
   const CYCLE = new Set(["cycleindex", "cycleid", "cycle", "cyclenumber", "cyclec", "cyc"]);
@@ -50,6 +51,80 @@
 
   const find = (cols, names) => cols.findIndex(([n]) => names.has(n));
 
+  function csvFields(line) {  // quote-aware split, as Python's csv.reader
+    const out = []; let cur = "", q = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (q) {
+        if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === ",") { out.push(cur); cur = ""; }
+      else cur += ch;
+    }
+    out.push(cur);
+    return out;
+  }
+
+  /* Discharge segments from step-structured exports (Maccor, nested Neware); mirrors _Segments in src/ingest.py. */
+  class Segments {
+    constructor() { this.rows = []; this.seg = -1; this.cycle = null; this.step = null; this.offset = 0; this.lastQ = 0; this.charged = true; }
+    charge() { this.charged = true; }
+    discharge(cycle, step, v, q) {
+      if (this.charged || cycle !== this.cycle) { this.seg++; this.offset = 0; this.lastQ = 0; }
+      else if (step !== this.step) this.offset += this.lastQ;
+      this.charged = false; this.cycle = cycle; this.step = step; this.lastQ = q;
+      this.rows.push([this.seg, cycle, v, q + this.offset]);
+    }
+    cycles() {
+      const segs = new Map();
+      for (const [seg, c, v, q] of this.rows) {
+        if (!segs.has(seg)) segs.set(seg, [c, [], []]);
+        segs.get(seg)[1].push(v); segs.get(seg)[2].push(q);
+      }
+      const nCyc = new Set([...segs.values()].map(([c]) => c)).size;
+      const renumber = segs.size > 1.5 * nCyc;
+      const best = new Map();
+      [...segs.keys()].sort((a, b) => a - b).forEach((seg, i) => {
+        const [c, vs, qs] = segs.get(seg);
+        const key = renumber ? i + 1 : c;
+        if (!best.has(key) || Math.max(...qs) > Math.max(...best.get(key)[1])) best.set(key, [vs, qs]);
+      });
+      const out = new Map();
+      for (const key of [...best.keys()].sort((a, b) => a - b)) {
+        const [vs, qs] = best.get(key);
+        out.set(key, { I: vs.map(() => -1), V: vs, Q: qs });
+      }
+      return out;
+    }
+  }
+
+  /* Nested Neware BTS export (cycle / step / record rows interleaved), or null. */
+  function newareNested(lines) {
+    const rows = lines.map(csvFields);
+    if (rows.length < 4 || !CYCLE.has(parseHeader(rows[0][0])[0])) return null;
+    if (rows[1].length < 3 || rows[2].length < 3 || rows[2][0].trim() || rows[2][1].trim()) return null;
+    const rec = rows[2].map(parseHeader);
+    const vi = find(rec, VOLT), ii = find(rec, CURR), qi = find(rec, new Set(["capacity"]));
+    if (Math.min(vi, ii, qi) < 0) return null;
+    const vs = SCALE[rec[vi][1]] ?? 1, qs = SCALE[rec[qi][1]] ?? 1;
+    const segs = new Segments();
+    let cyc = null, step = "", dis = false;
+    for (const r of rows.slice(3)) {
+      if (r.length && r[0].trim()) cyc = Math.round(num(r[0]));
+      else if (r.length > 2 && r[1].trim()) {
+        step = r[1].trim();
+        const name = r[2].trim().toLowerCase();
+        dis = name.includes("dchg");
+        if (name.includes("chg") && !dis) segs.charge();
+      } else if (cyc !== null && dis && r.length > Math.max(vi, ii, qi)) {
+        const v = num(r[vi]) * vs, q = num(r[qi]) * qs;
+        if (Number.isFinite(v) && Number.isFinite(q)) segs.discharge(cyc, step, v, q);
+      }
+    }
+    return segs.cycles();
+  }
+
   function readText(text, filename = "") {
     const dot = filename.lastIndexOf(".");
     const ext = dot >= 0 ? filename.slice(dot).toLowerCase() : "";
@@ -65,6 +140,10 @@
         if (fields.includes("cyc") || fields.includes("cyclec")) { vendor = "Maccor"; start = i; break; }
       }
     }
+    if (vendor === null) {
+      const nested = newareNested(lines.filter((ln) => ln.trim()));
+      if (nested !== null) return { vendor: "Neware", cycles: nested };
+    }
     const body = lines.slice(start).filter((ln) => ln.trim());
     if (body.length < 20) throw new IngestError("That file looks too short. Expected discharge time-series rows for cycles 10 and 100.");
     const [header, rows] = splitTable(body);
@@ -77,27 +156,25 @@
       throw new IngestError("Could not find cycle, voltage and discharge-capacity columns. Supported: Arbin, Maccor, Neware and BioLogic text exports, or cycle,voltage_v,discharge_capacity_ah.");
     if (vendor === null) {
       const names = new Set(cols.map(([n]) => n));
-      vendor = names.has("cycleindex") ? "Arbin"
+      vendor = (names.has("ewe") || names.has("ecell") || names.has("qdischarge")) ? "BioLogic"
+        : names.has("cycleindex") ? "Arbin"
         : (names.has("cycleid") || names.has("capacitancedchg") || names.has("dchgcap")) ? "Neware"
         : ii === -1 ? "Hectocycle CSV" : "CSV";
     }
     const vs = SCALE[cols[vi][1]] ?? 1, qs = SCALE[cols[qi][1]] ?? 1, is = ii !== -1 ? (SCALE[cols[ii][1]] ?? 1) : 1;
     const width = Math.max(ci, vi, qi, ii, si, ti);
 
-    const cycles = new Map();
-    let offset = 0, lastQ = 0, lastKey = null;
+    const cycles = new Map(), segs = new Segments();
     for (const r of rows) {
       if (r.length <= width) continue;
       let c = num(r[ci]), v = num(r[vi]) * vs, q = num(r[qi]) * qs, cur;
       if (!(Number.isFinite(c) && Number.isFinite(v) && Number.isFinite(q))) continue;
       c = Math.round(c);
-      if (si !== -1) {
-        if (!r[si].trim().toUpperCase().startsWith("D")) continue;
-        const key = [c, ti !== -1 ? r[ti].trim() : ""];
-        if (lastKey === null || key[0] !== lastKey[0]) offset = 0;
-        else if (key[1] !== lastKey[1]) offset += lastQ;
-        lastKey = key; lastQ = q;
-        q = q + offset; cur = -1;
+      if (si !== -1) {  // Maccor: state flags charge / discharge; capacity restarts every step
+        const state = r[si].trim().toUpperCase();
+        if (state.startsWith("C")) segs.charge();
+        else if (state.startsWith("D")) segs.discharge(c, ti !== -1 ? r[ti].trim() : "", v, q);
+        continue;
       } else if (ii !== -1) {
         cur = num(r[ii]) * is;
         if (!Number.isFinite(cur)) continue;
@@ -106,7 +183,7 @@
       const d = cycles.get(c);
       d.I.push(cur); d.V.push(v); d.Q.push(q);
     }
-    return { vendor, cycles };
+    return { vendor, cycles: si !== -1 ? segs.cycles() : cycles };
   }
 
   /* Discharge branch as strictly ascending V with mean Q per repeated V (src/transfer.py). */
@@ -135,8 +212,9 @@
   }
 
   function dqFeatures(a, b, nGrid = 1000) {
-    const vLo = Math.max(a[0][0], b[0][0]) + 0.01;
-    const vHi = Math.min(a[0][a[0].length - 1], b[0][b[0].length - 1]) - 0.01;
+    // overlap trimmed 10 mV, clipped to Severson's 2.0-3.5 V Qdlin window (src/transfer.py V_WINDOW)
+    const vLo = Math.max(Math.max(a[0][0], b[0][0]) + 0.01, V_WINDOW[0]);
+    const vHi = Math.min(Math.min(a[0][a[0].length - 1], b[0][b[0].length - 1]) - 0.01, V_WINDOW[1]);
     if (vHi <= vLo) return null;
     const step = (vHi - vLo) / (nGrid - 1), dq = new Array(nGrid);
     for (let k = 0; k < nGrid; k++) {
