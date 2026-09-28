@@ -39,9 +39,12 @@ def life_from_capacity(cycles, qd, nominal_ah, fraction=EOL_FRACTION):
 def lot_from_matr(bat_dict):
     lot = {}
     for k, c in bat_dict.items():
-        feats = {cut: delta_q_features(c, cyc_late=cut) for cut in CUTOFFS}
+        feats = {cut: (delta_q_features(c, cyc_late=cut)
+                       if str(cut) in c["cycles"] and "10" in c["cycles"] else None) for cut in CUTOFFS}
         qd = np.asarray(c["summary"]["QD"], float)
-        lot[k] = {"life": float(c["cycle_life"]), "feats": feats, "qd2": float(qd[1]) if len(qd) > 1 else None}
+        life = c.get("cycle_life")
+        life = float(life) if life is not None and np.isfinite(life) else None  # unfinished log: censored
+        lot[k] = {"life": life, "feats": feats, "qd2": float(qd[1]) if len(qd) > 1 else None}
     return lot
 
 

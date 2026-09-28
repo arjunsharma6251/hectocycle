@@ -4,6 +4,9 @@ Everything that decides the outcome is frozen below and was fixed in Phase A
 on batches 1-4 before any new lot was scored. The lot can come from:
 
     --source matr-b4                         MATR batch 4 (reproduces Phase A; not a gate)
+    --source matr-mat --paths X.mat          any MATR-format batch file; eligibility (same 4C
+                                             discharge and temperature as training) is checked
+                                             before any gate metric
     --source batterylife --paths HUST/*.pkl  BatteryLife pickles (the HUST rehearsal)
     --source files --paths lab/*.csv         cycler text exports, one file per cell,
                                              cycle 1 to end of life (a lab's lot)
@@ -45,7 +48,47 @@ BARS = {"mean_wrong": 0.5, "p_le1_wrong": 0.95, "saved": 0.0, "coverage": 0.70, 
 SEVERSON_QD2 = {"b1": 1.0784, "b2": 1.0717, "b3": 1.0653}  # median cycle-2 capacity, Ah
 
 
+def matr_eligibility(mat_path, lot, sev, train):
+    """E1-E3 of docs/batch-recalibration-study.md §4, from raw currents and temperatures only."""
+    import h5py
+    currents, temps = [], []
+    with h5py.File(mat_path, "r") as f:
+        batch = f["batch"]
+        for i in range(batch["cycles"].shape[0]):
+            grp = f[batch["cycles"][i, 0]]
+            if grp["I"].shape[0] <= 10:
+                continue
+            I = np.hstack(f[grp["I"][10, 0]][()]).astype(float)  # C-rate units
+            dis = I[I < -0.5]
+            if dis.size:
+                currents.append(float(np.median(dis)))
+            s = f[batch["summary"][i, 0]]
+            tavg = np.hstack(s["Tavg"][0, :].tolist())
+            if len(tavg) > 10:
+                temps.append(float(tavg[10]))
+    t_train = [float(sev[k]["summary"]["Tavg"][10]) for k in train]
+    n_ok = sum(1 for c in lot.values() if c["feats"].get(10 if 10 in c["feats"] else 100) is not None
+               and c["feats"].get(100) is not None)
+    med_i, med_t = float(np.median(currents)), float(np.median(temps))
+    checks = {"E1_cells_with_cycle_100": n_ok >= 20,
+              "E2_discharge_4C": -4.4 <= med_i <= -3.6,
+              "E3_temperature": min(t_train) - 2 <= med_t <= max(t_train) + 2}
+    return checks, {"n_cells_cycle_100": n_ok, "median_discharge_C": med_i, "median_T_cycle10": med_t,
+                    "train_T_range": [min(t_train), max(t_train)]}
+
+
 def load_lot(args):
+    if args.source == "matr-mat":
+        from src.data import compute_cycle_life, load_batch
+        cells = load_batch(args.paths[0], "x")
+        for c in cells.values():
+            qd = np.asarray(c["summary"]["QD"], float)
+            reached = bool(np.any(qd[1:] < 0.88)) or (len(qd) > 1 and qd[-1] <= 0.8810)
+            # a life only if the log reaches 80% (crossing, or Severson's stop-at-EOL
+            # pattern of ending at 0.8801-0.8809 Ah); an early-stopped log is censored,
+            # whatever cycle_life the file stores (§4 of the study)
+            c["cycle_life"] = compute_cycle_life(c) if reached else float("nan")
+        return lot_from_matr(cells)
     if args.source == "matr-b4":
         from src.matr_b4 import load_b4
         return lot_from_matr(load_b4(os.path.join(ROOT, "data"), verbose=False))
@@ -56,7 +99,7 @@ def load_lot(args):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", choices=["matr-b4", "batterylife", "files"], required=True)
+    ap.add_argument("--source", choices=["matr-b4", "matr-mat", "batterylife", "files"], required=True)
     ap.add_argument("--paths", nargs="*", default=[])
     ap.add_argument("--name", required=True)
     ap.add_argument("--T", type=float, default=700)
@@ -77,6 +120,16 @@ def main(argv=None):
     train, _, _ = canonical_split(sev.keys())
     tr = {k: sev[k] for k in train}
     life_tr = [sev[k]["cycle_life"] for k in train]
+
+    if args.source == "matr-mat":
+        elig, elig_info = matr_eligibility(args.paths[0], lot_all, sev, train)
+        print(json.dumps({"eligibility": elig, **elig_info}, indent=1))
+        if not all(elig.values()):
+            out = {"lot": args.name, "decision": "INELIGIBLE", "eligibility": elig, "eligibility_info": elig_info}
+            with open(os.path.join(ROOT, "figures", f"batch_recal_{args.name}.json"), "w") as fp:
+                json.dump(out, fp, indent=1)
+            print("decision: INELIGIBLE (gate not run)")
+            return out
     bo = {c: BatchOffsetLife().fit(dq_frame(tr, c).values, life_tr, [k[:2] for k in train]) for c in CUTOFFS}
 
     # refusals are about inputs, so they count over every cell, labelled or not
