@@ -965,10 +965,12 @@ function renderDiagInspector(insp, c) {
 let _clipSeq = 0;
 
 function lineChart({ series, w = inspectorWidth(), h = 190, xlabel = "", ylabel = "", refX = [], refY = [], xlim = null,
-                     ylim = null, yfmt = (v) => fmt(v, 2), xfmt = (v) => String(Math.round(v)), annotations = [], xticks = null }) {
+                     ylim = null, yfmt = (v) => fmt(v, 2), xfmt = (v) => String(Math.round(v)), annotations = [], xticks = null,
+                     ariaLabel = "" }) {
   const pad = { l: 46, r: 14, t: 22, b: 30 };
   const wrap = html("div", "chart");
   const svg = el("svg", { viewBox: `0 0 ${w} ${h}` }, wrap);
+  if (ariaLabel) { svg.setAttribute("role", "img"); svg.setAttribute("aria-label", ariaLabel); }
   const xs = series.flatMap((s) => s.x), ys = series.flatMap((s) => s.y);
   let xmin = Math.min(...xs), xmax = Math.max(...xs);
   if (xlim) [xmin, xmax] = xlim;
@@ -1109,10 +1111,12 @@ function renderGates() {
   const cc = q.callable_curve;
   const c1 = html("div", "", sm); html("h3", "", c1, "Cells callable at each cutoff, %");
   c1.appendChild(lineChart({ series: [{ x: cc.map((r) => r.cutoff), y: cc.map((r) => r.called_frac * 100), color: "var(--ink)", label: "" }],
+    ariaLabel: `Share of held-out cells callable at each cutoff: ${cc.map((r) => `${Math.round(r.called_frac * 100)}% at cycle ${r.cutoff}`).join(", ")}.`,
     w: 300, h: 170, xlabel: "cutoff cycle", ylim: [0, 100], yfmt: (v) => fmt(v, 0), xticks: cc.map((r) => r.cutoff),
     refX: [{ v: 60, label: "cycle-60 dip, unexplained", color: "var(--red)" }] }));
   const c2 = html("div", "", sm); html("h3", "", c2, "Accuracy on the cells called, %");
   c2.appendChild(lineChart({ series: [{ x: cc.map((r) => r.cutoff), y: cc.map((r) => Math.min(100, r.acc_on_called * 100)), color: "var(--green)", label: "" }],
+    ariaLabel: `Accuracy on the cells called at each cutoff: ${cc.map((r) => `${Math.round(r.acc_on_called * 100)}% at cycle ${r.cutoff}`).join(", ")}.`,
     w: 300, h: 170, xlabel: "cutoff cycle", ylim: [0, 100], yfmt: (v) => fmt(v, 0), xticks: cc.map((r) => r.cutoff) }));
   const ct = html("table", "callable-table", g1);
   ct.innerHTML = `<thead><tr><th>cutoff</th>${cc.map((r) => `<th class="num">${r.cutoff}</th>`).join("")}</tr></thead>
@@ -1172,6 +1176,7 @@ function renderOutOfSampleGate(grid, q) {
     xticks: [400, 700, 1000, 1300], refX: [{ v: T(), label: "", color: "var(--ink-2)" }],
     refY: [{ v: 0.5, label: "", color: "var(--ink-2)" }],
     annotations: [{ x: T(), y: 0.12, text: `spec T = ${T()}`, color: "var(--ink-2)" }],
+    ariaLabel: `Scatter of predicted probability of passing against true cycle life. Batch 4 cells mostly sit at P(pass) 1.0 across lives from about 450 to 1,170 cycles, including ${bad.length} cells that failed short of the ${T()}-cycle spec; Severson test cells separate cleanly around the spec.`,
   }));
   html("p", "chart-caption", c1).innerHTML = `Gray: Severson test cells. Ink: batch 4. <b class="alarm">Red</b>: the ${bad.length} fail cells the policy would have pulled as passes.`;
   const tr = html("div", "transfer-result", g);
@@ -1273,14 +1278,14 @@ function renderTry() {
     <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose cycler files to score">
       <svg><use href="#i-upload"/></svg>
       <span class="dz-main">Drop files here, or click to choose</span>
-      <span class="dz-sub"><a href="sample_cell.csv" download id="sample-link">Download a sample file</a>: a real Sandia LFP cell this model never trained on</span>
     </div>
+    <p class="dz-sub"><a href="sample_cell.csv" download id="sample-link">Download a sample file</a>: a real Sandia LFP cell this model never trained on</p>
     <input type="file" id="try-file" accept=".csv,.txt,.mpt,.tsv,text/csv,text/plain" multiple hidden>
     <div id="try-result"></div>
   </div>`;
   const dz = pane.querySelector("#dropzone");
   const input = pane.querySelector("#try-file");
-  dz.addEventListener("click", (e) => { if (e.target.tagName !== "A") input.click(); });
+  dz.addEventListener("click", () => input.click());
   dz.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
   dz.addEventListener("dragover", (e) => { e.preventDefault(); dz.classList.add("drag"); });
   dz.addEventListener("dragleave", () => dz.classList.remove("drag"));
@@ -1322,7 +1327,9 @@ async function handleTryFiles(files) {
     const tr = html("tr", res.error ? "err" : "", tbody);
     rows.push(tr);
     const nameTd = html("td", "name", tr);
-    html("span", "fname", nameTd, res.name).title = res.name;
+    const nameEl = html(res.error ? "span" : "button", "fname", nameTd, res.name);
+    nameEl.title = res.name;
+    if (!res.error) { nameEl.type = "button"; nameEl.setAttribute("aria-label", `Show details for ${res.name}`); }
     if (res.error) {
       const td = html("td", "try-row-error", tr, res.error);
       td.colSpan = window.matchMedia("(max-width: 640px)").matches ? 2 : 3;
@@ -1334,15 +1341,14 @@ async function handleTryFiles(files) {
     const td = html("td", "", tr);
     if (res.r.verdict !== "out-of-envelope") td.appendChild(intervalBar({ p_pass: res.r.p, p_lo: res.r.p0, p_hi: res.r.p1, verdict: res.r.verdict }));
     else html("span", "muted", td, "not scored");
-    tr.tabIndex = 0;
     const open = () => {
-      rows.forEach((r) => r.classList.remove("sel"));
+      rows.forEach((r) => { r.classList.remove("sel"); r.querySelector("button.fname")?.setAttribute("aria-pressed", "false"); });
       tr.classList.add("sel");
+      nameEl.setAttribute("aria-pressed", "true");
       detail.innerHTML = "";
       renderTryCard(detail, res);
     };
-    tr.addEventListener("click", open);
-    tr.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+    tr.addEventListener("click", open);  // the whole row is a pointer target; the button is the keyboard one
   });
   announce(`${results.length} files scored.`);
 }
