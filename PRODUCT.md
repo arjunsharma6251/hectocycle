@@ -42,7 +42,9 @@ Success for a reviewer: within one visit they understand the premise, see a work
 - Terminology in use: **verdict**, **call / callable**, **KEEP TESTING**, **out of envelope**, **queue**, **evidence**, **verdict bracket** (the interval rail), **gate**, **fleet**, **inspector**, cycler **channel**.
 - Technical constraints: static hosting at runtime (no server on hectocycle.com), bundle currently ~1.9 MB JSON, no build step, browser-side scoring must stay parity-tested against the Python pipeline (tests at 1e-6).
 - Known open question: a persistent accuracy dip at the cycle-60 cutoff, unexplained across all model variants; the product documents it rather than smoothing it over.
-- Undecided: whether the allocation policy gets a surface in the cockpit (it currently lives in the study doc and README only).
+- Decided: the allocation policy is surfaced as the fleet's disposition line. The closed-loop protocol-selection loop has no surface: its gate returned RESCOPE (docs/closed-loop-study.md), so only its ranking result appears, in GATES.
+- Decided: verdicts are scoped to the batches the model was calibrated on. Batch 4 failed the out-of-sample gate through a silent level shift that no input guard can detect (docs/out-of-sample-study.md); it appears in GATES as a failed gate, never as fleet verdicts.
+- Decided: no spec-threshold slider. The jackknife+ life model failed its gate on decisiveness (docs/spec-threshold-study.md), so T stays at 700.
 
 ## Brand Commitments
 
@@ -50,7 +52,7 @@ Success for a reviewer: within one visit they understand the premise, see a work
 
 ## Evidence on Hand
 
-- Validation studies with real numbers: `docs/early-call-study.md` (gate runs, callable curve, OOD transfer, allocation policy §6), `docs/degradation-modes-study.md`, `docs/mode-identifiability-study.md`.
+- Validation studies with real numbers: `docs/early-call-study.md` (gate runs, callable curve, OOD transfer, allocation policy §6), `docs/degradation-modes-study.md`, `docs/mode-identifiability-study.md`, `docs/out-of-sample-study.md`, `docs/spec-threshold-study.md`, `docs/closed-loop-study.md`.
 - Figures: `figures/` (callable curve, reliability, stabilization, allocation policy, mode trajectories); screenshots in `docs/screenshots/`.
 - Reproducible notebooks: `notebooks/early_call_study.ipynb`, `notebooks/degradation_modes_study.ipynb`; 29 tests in `tests/`, CI green.
 - Real sample cell for TRY IT: `app/static/sample_cell.csv` (an SNL LFP transfer cell).

@@ -1179,6 +1179,10 @@ function renderOutOfSampleGate(grid, q) {
   html("span", "tr-lbl", tr, `rank correlation of ΔQ variance with life on batch 4 (${fmt(d.severson_test.spearman_logvar_life, 2)} on Severson): the signal still orders the cells`);
   html("b", "tr-num bad", tr, `−${Math.round((1 - d.b4.life_ratio_true_over_pred) * 100)}%`);
   html("span", "tr-lbl", tr, "batch 4 lives against what the Severson ΔQ-to-life map predicts: the level moved, silently, with every input inside the envelope");
+  if (o.protocol_ranking) {
+    html("b", "tr-num", tr, fmt(o.protocol_ranking.spearman, 2));
+    html("span", "tr-lbl", tr, `rank correlation of predicted with true life across batch 4's ${o.protocol_ranking.n_protocols} charging protocols: fit to choose what to test next, not to issue verdicts`);
+  }
   html("p", "gate-note", g).innerHTML = `Batch 4 is Attia et al.'s 2019 validation batch: the same A123 cell, stored longer before testing. The model called <b>P(pass) = 1.00</b> on cells that died at 608–678 cycles. An input guard cannot see this kind of shift; only labels can. So a new batch is uncalibrated until some of its cells reach end of life. The ranking survives, which is what protocol selection needs.`;
 }
 

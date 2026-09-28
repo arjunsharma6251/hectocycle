@@ -196,6 +196,11 @@ def build_qualification():
             "points": [{"id": c["id"], "life": c["cycle_life"], "p": c["p_pass"],
                         "wrong": c["id"] in wrong} for c in o["cells"] if not c["violations"]],
         }
+        cl_path = os.path.join(ROOT, "figures", "closed_loop.json")
+        if os.path.exists(cl_path):  # docs/closed-loop-study.md (RESCOPE: ranking only)
+            cl = json.load(open(cl_path))
+            oos["protocol_ranking"] = {"spearman": round(cl["spearman"], 3), "n_protocols": len(cl["protocols"]),
+                                       "decision": cl["decision"]}
 
     return {
         "threshold": T,

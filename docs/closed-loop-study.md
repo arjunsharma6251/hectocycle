@@ -54,3 +54,39 @@ Bₛ is the smallest budget at which strategy s recommends a top-cluster protoco
 - Ranking fails: **KILL**.
 
 **Descriptive, not gated:** mean regret curves, strategy 2 vs 3 (does adaptivity help beyond cheap observations?), and strategy 4.
+
+## 1. Result: **RESCOPE**. The ranking holds; the budget saving falls short of the bar
+
+Scored once by `scripts/closed_loop.py` (1,000 campaigns per strategy, 8 channels; output in `figures/closed_loop.json`).
+
+| Check | Result | Bar | |
+|---|---|---|---|
+| Protocol ranking, Spearman ρ (predicted vs true mean life, 9 protocols) | **0.88** | ≥ 0.70 | ✅ |
+| Budget to recommend a top-cluster protocol in 95% of campaigns: early + Thompson (B₃) vs run-to-failure grid (B₁) | **2,533 vs 7,641 channel-cycles** (77 vs 232 channel-days): **ratio 0.33** | ≤ 0.25 | ❌ |
+
+### **OFFICIAL GATE DECISION: RESCOPE**
+
+The early signal ranks protocols it has never seen. The loop finds a good protocol for a third of the cycler time of running cells to failure, but not the quarter the gate asked for, so no loop claim ships.
+
+![Closed-loop replay on batch 4](../figures/closed_loop.png)
+
+**Ranking under shift.** The predictor over-estimates *every* protocol's life by about 30%: predicted 626–1,225 against true 496–912. This is the batch-level shift from the out-of-sample study, and it doesn't matter for ranking.
+- All four protocols below the top cluster are ranked below all five top-cluster protocols, except one.
+- The exception is 3.6C-6C-5.6C-4.755C (true 755, predicted 1,091), which sits above two top-cluster members.
+- That one inversion is what keeps the early strategies from 95% in their opening round.
+
+**Why the budget check missed.**
+- **The arena is easy for run-to-failure.** The top cluster is 17% clear of the next protocol, so a single run-to-failure cell per protocol already recommends a top-cluster protocol 95% of the time. B₁ is essentially the opening round.
+- **The early strategies start fast but need more cells.** After their 9-cell opening round (900 channel-cycles) they are at 81%, against 56% for chance. They need about 16 more early-called cells to clear 95%, because the misranked 755-cycle protocol keeps winning some opening draws.
+- **Adaptivity didn't help at this scale.** Thompson sampling and round-robin reach 95% at the same budget. With 9 protocols and 8 channels a round-robin revisits every protocol about once per round anyway; the bandit's advantage shows up in large spaces (Attia's 224), not here.
+
+## 2. Descriptive results
+
+- **Calendar time, not gated.** An early observation takes 100 cycles (about 3 days at 43.8 min/cycle). A run-to-failure observation on this batch takes 443–1,166 cycles (13–35 days). Run-to-failure cannot recommend anything until its whole opening round has died, so the early loop's advantage in *wall-clock* time is larger than its channel-day ratio. The gate was on channel-days, and that is the number that failed.
+- **Mean regret** (true life lost against the best protocol) for early + Thompson: 4.9% after its opening round, **2.7%** at its 95% budget. The residual is the spread *within* the top cluster, which no strategy can resolve with 5 replicates.
+
+## 3. What this changes
+
+- **In the cockpit:** the ranking result is reported (GATES, out-of-sample card). There is no closed-loop surface.
+- **For the science:** the out-of-sample study's split holds up on independent evidence. On a new batch the early signal is unfit to issue *verdicts* but fit to *order* protocols (ρ = 0.88).
+- **For a harder test:** a pre-registered replay on a space where run-to-failure is expensive to cover, such as Attia's closed-loop rounds, is where the bandit would have to earn its keep. Those rounds have no end-of-life labels, which is why this study used the validation batch.
