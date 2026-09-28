@@ -83,3 +83,40 @@ Results at k = 4 (mean over draws; full sweep in `figures/batch_recal_explore*.j
 - **Expectation, stated in advance:** HUST's varied discharge protocols change the discharge curves the ΔQ(V) features are computed from. A *loud* shift (many refusals) would not be a surprise, and would say the rehearsal cannot speak to the offset model.
 
 **Label cross-check:** cycle life is recomputed from each cell's capacity (first sustained drop below 80% of nominal). Disagreements of more than 5 cycles with BatteryLife's labels are reported.
+
+## 2. HUST rehearsal: **uninformative**
+
+Run once by `scripts/batch_recal.py --source batterylife --T 1800` (output in `figures/batch_recal_hust-rehearsal.json`).
+
+| Check | Result | Bar | |
+|---|---|---|---|
+| Refused by the envelope guard | **74 of 77 (96%)** | ≤ one third | ❌ |
+| Cells with a measured life (log reaches 80% of nominal) | **0 of 77** | at least 5 on each side of T_H | uninformative |
+| Coverage of the pilot-calibrated interval | not computable: no pilots | ≥ 0.70 | n/a |
+
+The rehearsal says nothing about the offset model. Two independent reasons, the first stated in advance:
+
+1. **Loud shift, as expected.** HUST discharges each cell on a different multi-stage protocol (for example 5C to 60% state of charge, then a lower rate). When the current steps down, the voltage jumps, and Q(V) is no longer a single smooth curve. The ΔQ(V) statistics land far outside training: |min ΔQ| is about 0.65 Ah on the first cell against about 0.01 Ah in training. The envelope guard refuses them, which is its job.
+2. **No measured lives, not anticipated.** Every HUST log ends above 80% of nominal (the first cell bottoms out at 0.894 Ah against the 0.88 Ah line). BatteryLife *extrapolates* labels for cells that end between 80% and 82.5%. Under the pre-registered rule these are censored, so there are no pilots to calibrate on. Using BatteryLife's extrapolated labels instead would be a deviation from the pre-registration, and it would not rescue the rehearsal given reason 1.
+
+**What it changes:** it turns two assumptions in the Phase C data requirements into hard requirements:
+- **constant-current discharge** at the Severson rate (4C to 2.0 V)
+- **logs that run past 80% of nominal capacity**
+
+The pipeline itself ran end to end on untouched BatteryLife data: loading, featurizing at every checkpoint, the envelope guard, and a clean "uninformative" verdict instead of a crash or a number.
+
+## 3. Status
+
+Phase C, a fresh lot, is the only remaining test that can decide this study. The data it needs:
+- the same cell (A123 APR18650M1A)
+- at least 20 cells from one unpublished lot
+- 4C constant-current discharge to 2.0 V at about 30 °C
+- fast-charge protocols giving lives near 700
+- each cell logged from cycle 1 to below 80% of nominal
+- text exports from any supported cycler
+
+One command then runs the frozen gate:
+
+```bash
+.venv/bin/python scripts/batch_recal.py --source files --paths lot/*.csv --name <lot> --minutes-per-cycle <measured>
+```

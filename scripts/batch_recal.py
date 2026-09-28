@@ -79,8 +79,10 @@ def main(argv=None):
     life_tr = [sev[k]["cycle_life"] for k in train]
     bo = {c: BatchOffsetLife().fit(dq_frame(tr, c).values, life_tr, [k[:2] for k in train]) for c in CUTOFFS}
 
-    evidence, viol = classifier_evidence(sev, train, labels, lot)
-    refused = {k for k in keys if viol[k]}
+    # refusals are about inputs, so they count over every cell, labelled or not
+    evidence, viol = classifier_evidence(sev, train, labels, lot_all)
+    refused_all = {k for k in lot_all if viol[k]}
+    refused = refused_all & set(keys)
     use_classifier = T == CLASSIFIER_T
     pull = {}
     for k in keys:
@@ -93,7 +95,7 @@ def main(argv=None):
     pool = [k for k in keys if k in X[100]]
     rng = np.random.default_rng(SEED)
     outcomes, unaudited, cover, iv_wrong, alphas = [], [], [], [], []
-    for _ in range(DRAWS):
+    for _ in range(DRAWS if len(pool) >= K_PILOTS + 1 else 0):
         pil = list(rng.choice(pool, size=K_PILOTS, replace=False))
         a = {c: bo[c].offset_from_pilots(np.array([X[c][p] for p in pil]), [life[p] for p in pil], cap=cap)
              for c in CUTOFFS if all(p in X[c] for p in pil)}
@@ -117,32 +119,35 @@ def main(argv=None):
             iv_wrong.append(int(np.sum(called & ((lo >= T) != (L >= T)))))
 
     wrong = np.array([o.wrong_final for o in outcomes])
+    mean = lambda xs: float(np.mean(xs)) if len(xs) else None
     m = {
-        "n": len(keys), "censored_logs": censored, "n_pass": n_pass, "refused": len(refused),
-        "mean_wrong": float(wrong.mean()), "p_le1_wrong": float(np.mean(wrong <= 1)),
-        "mean_wrong_unaudited": float(np.mean([o.wrong_final for o in unaudited])),
-        "reversals": float(np.mean([o.reversals for o in outcomes])),
-        "pulled": float(np.mean([o.pulled for o in outcomes])),
-        "saved": float(np.mean([o.saved_frac for o in outcomes])),
-        "saved_unaudited": float(np.mean([o.saved_frac for o in unaudited])),
-        "final_day_median": float(np.median([o.final_day for o in outcomes])),
-        "coverage": float(np.mean(cover)) if cover else None,
-        "interval_wrong_mean": float(np.mean(iv_wrong)) if iv_wrong else None,
-        "alpha_median": float(np.median(alphas)),
+        "n_files": len(lot_all), "n_labelled": len(keys), "censored_logs": len(censored), "n_pass": n_pass,
+        "refused": len(refused_all), "refused_frac": len(refused_all) / max(len(lot_all), 1),
+        "mean_wrong": mean(wrong), "p_le1_wrong": mean(wrong <= 1),
+        "mean_wrong_unaudited": mean([o.wrong_final for o in unaudited]),
+        "reversals": mean([o.reversals for o in outcomes]),
+        "pulled": mean([o.pulled for o in outcomes]),
+        "saved": mean([o.saved_frac for o in outcomes]),
+        "saved_unaudited": mean([o.saved_frac for o in unaudited]),
+        "final_day_median": float(np.median([o.final_day for o in outcomes])) if outcomes else None,
+        "coverage": mean(cover),
+        "interval_wrong_mean": mean(iv_wrong),
+        "alpha_median": float(np.median(alphas)) if alphas else None,
         "train_alphas": {b: float(v) for b, v in bo[100].alpha_.items()},
         "qd2_median": float(np.median([c["qd2"] for c in lot.values() if c["qd2"]])) if any(
             c["qd2"] for c in lot.values()) else None,
     }
-    informative = min(n_pass, len(keys) - n_pass) >= BARS["min_each_side"]
+    informative = min(n_pass, len(keys) - n_pass) >= BARS["min_each_side"] and bool(outcomes)
     checks = {
         "coverage": m["coverage"] is not None and m["coverage"] >= BARS["coverage"],
-        "refused": m["refused"] <= BARS["refused_frac"] * len(keys),
+        "refused": m["refused_frac"] <= BARS["refused_frac"],
     }
-    if use_classifier:
+    if use_classifier and outcomes:
         checks.update({"wrong": m["mean_wrong"] <= BARS["mean_wrong"] and m["p_le1_wrong"] >= BARS["p_le1_wrong"],
                        "saved": m["saved"] > BARS["saved"]})
     if not informative:
-        decision = "UNINFORMATIVE at this T (fewer than 5 cells on one side)"
+        decision = ("UNINFORMATIVE: fewer than 5 labelled cells on one side of T, or too few labelled cells "
+                    "with cycle-100 data to draw pilots")
     elif not use_classifier:
         decision = "REHEARSAL PASS" if all(checks.values()) else "REHEARSAL FAIL"
     elif checks["wrong"] and checks["coverage"] and checks["refused"]:

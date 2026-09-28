@@ -1,0 +1,61 @@
+{
+ "lot": "hust-rehearsal",
+ "source": "batterylife",
+ "T": 1800.0,
+ "pilot_cap": 2700.0,
+ "frozen": {
+  "k": 4,
+  "audit_level": 0.8,
+  "cap_factor": 1.5,
+  "draws": 1000,
+  "seed": 2026,
+  "bars": {
+   "mean_wrong": 0.5,
+   "p_le1_wrong": 0.95,
+   "saved": 0.0,
+   "coverage": 0.7,
+   "refused_frac": 0.3333333333333333,
+   "min_each_side": 5
+  }
+ },
+ "mode": "life-model only (no stage-1 classifier at this T)",
+ "metrics": {
+  "n_files": 77,
+  "n_labelled": 0,
+  "censored_logs": 77,
+  "n_pass": 0,
+  "refused": 74,
+  "refused_frac": 0.961038961038961,
+  "mean_wrong": null,
+  "p_le1_wrong": null,
+  "mean_wrong_unaudited": null,
+  "reversals": null,
+  "pulled": null,
+  "saved": null,
+  "saved_unaudited": null,
+  "final_day_median": null,
+  "coverage": null,
+  "interval_wrong_mean": null,
+  "alpha_median": null,
+  "train_alphas": {
+   "b1": 2.1530455538605566,
+   "b2": 2.0047427433292917
+  },
+  "qd2_median": null
+ },
+ "checks": {
+  "coverage": false,
+  "refused": false
+ },
+ "informative": false,
+ "decision": "UNINFORMATIVE: fewer than 5 labelled cells on one side of T, or too few labelled cells with cycle-100 data to draw pilots",
+ "batch_warning": {
+  "lot_qd2": null,
+  "severson_qd2": {
+   "b1": 1.0784,
+   "b2": 1.0717,
+   "b3": 1.0653
+  },
+  "outside": null
+ }
+}
