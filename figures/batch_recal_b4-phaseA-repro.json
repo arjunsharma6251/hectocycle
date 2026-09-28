@@ -1,0 +1,61 @@
+{
+ "lot": "b4-phaseA-repro",
+ "source": "matr-b4",
+ "T": 700,
+ "pilot_cap": 1050.0,
+ "frozen": {
+  "k": 4,
+  "audit_level": 0.8,
+  "cap_factor": 1.5,
+  "draws": 1000,
+  "seed": 2026,
+  "bars": {
+   "mean_wrong": 0.5,
+   "p_le1_wrong": 0.95,
+   "saved": 0.0,
+   "coverage": 0.7,
+   "refused_frac": 0.3333333333333333,
+   "min_each_side": 5
+  }
+ },
+ "mode": "provisional pull",
+ "metrics": {
+  "n": 45,
+  "censored_logs": [],
+  "n_pass": 31,
+  "refused": 4,
+  "mean_wrong": 0.221,
+  "p_le1_wrong": 0.953,
+  "mean_wrong_unaudited": 4.563,
+  "reversals": 21.732,
+  "pulled": 29.125,
+  "saved": 0.1454444032616753,
+  "saved_unaudited": 0.6841047072237527,
+  "final_day_median": 28.682916666666664,
+  "coverage": 0.7724695262063683,
+  "interval_wrong_mean": 0.764,
+  "alpha_median": 2.0664616104563898,
+  "train_alphas": {
+   "b1": 2.1530455538605566,
+   "b2": 2.0047427433292917
+  },
+  "qd2_median": 1.0505757
+ },
+ "checks": {
+  "coverage": true,
+  "refused": true,
+  "wrong": true,
+  "saved": true
+ },
+ "informative": true,
+ "decision": "BUILD",
+ "batch_warning": {
+  "lot_qd2": 1.0505757,
+  "severson_qd2": {
+   "b1": 1.0784,
+   "b2": 1.0717,
+   "b3": 1.0653
+  },
+  "outside": true
+ }
+}
