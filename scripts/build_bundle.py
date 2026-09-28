@@ -181,9 +181,26 @@ def build_qualification():
             row["verdict"] = "train"
         cells.append(row)
 
+    # out-of-sample gate on MATR batch 4 (docs/out-of-sample-study.md),
+    # produced by scripts/out_of_sample.py; omitted if that hasn't been run
+    oos = None
+    oos_path = os.path.join(ROOT, "figures", "out_of_sample.json")
+    if os.path.exists(oos_path):
+        o = json.load(open(oos_path))
+        wrong = set(o["policy"]["confirmed"]["wrong_ids"])
+        oos = {
+            "decision": o["decision"], "bars": o["bars"], "metrics": o["metrics"],
+            "checks": o["checks"], "diagnosis": o["diagnosis"],
+            "mean_p_pass": round(o["mean_p_pass"], 3), "true_pass_rate": round(o["true_pass_rate"], 3),
+            "callable_curve": o["callable_curve"],
+            "points": [{"id": c["id"], "life": c["cycle_life"], "p": c["p_pass"],
+                        "wrong": c["id"] in wrong} for c in o["cells"] if not c["violations"]],
+        }
+
     return {
         "threshold": T,
         "gate": {
+            "out_of_sample": oos,
             "prereg": {"acc": 0.924, "ece": 0.105, "decision": "RESCOPE"},
             "hardened": {"acc": 0.941, "ece": 0.054, "decision": "BUILD-pending"},
             "production": {"acc": 0.905, "ece": 0.043, "features": "dQ(V)-only",

@@ -1013,6 +1013,11 @@ function lineChart({ series, w = inspectorWidth(), h = 190, xlabel = "", ylabel 
   el("rect", { x: pad.l, y: pad.t, width: w - pad.l - pad.r, height: h - pad.t - pad.b }, clip);
   const paths = [];
   for (const s of series) {
+    if (s.dots) {
+      s.x.forEach((x, i) => el("circle", { cx: X(x).toFixed(1), cy: Y(s.y[i]).toFixed(1), r: s.r || 3,
+        fill: s.color, "fill-opacity": s.opacity ?? 1, "clip-path": `url(#${clipId})` }, svg));
+      continue;
+    }
     const d = s.x.map((x, i) => `${i ? "L" : "M"}${X(x).toFixed(1)},${Y(s.y[i]).toFixed(1)}`).join("");
     paths.push(el("path", { d, fill: "none", stroke: s.color, "stroke-width": 1.75, "stroke-linejoin": "round", "stroke-linecap": "round", "clip-path": `url(#${clipId})` }, svg));
   }
@@ -1115,6 +1120,8 @@ function renderGates() {
     <tr><td>accuracy on called</td>${cc.map((r) => `<td class="num">${Math.round(r.acc_on_called * 100)}%</td>`).join("")}</tr></tbody>`;
   html("p", "gate-note", g1).innerHTML = `The dip at cutoff 60 survives every model variant tried and has no explanation yet. It is documented rather than smoothed over; with n = 83 a single cutoff moves by a few cells.`;
 
+  if (q.gate.out_of_sample) renderOutOfSampleGate(grid, q);
+
   const g2 = html("section", "gate", grid);
   const h2 = html("h2", "", g2, "Degradation-mode engine");
   html("span", "ships", h2, "ships as curve tracking with fade-closure QC; quantitative modes only where the data earns them");
@@ -1131,6 +1138,48 @@ function renderGates() {
     html("td", "", r, name); html("td", "num", r, val); html("td", "", r).appendChild(check(ok, ok ? "pass" : "fail"));
   }
   html("p", "gate-note", g2).innerHTML = `NCA decomposition is unidentifiable from 0.5C curves with generic half-cell references: five stabilization variants were tried and the boundary is physical, not a bug. So the interface shows a <b>hint with its stability score</b> for NCA and NMC, <b>nothing</b> for LFP, and a <b>quantitative split</b> only for the Oxford cells, where C/18.5 diagnostics and matched Kokam references took the pre-registered stability check from 1 of 8 to 8 of 8.`;
+}
+
+function renderOutOfSampleGate(grid, q) {
+  const o = q.gate.out_of_sample, m = o.metrics, b = o.bars, d = o.diagnosis;
+  const g = html("section", "gate", grid);
+  const h = html("h2", "", g, "Out-of-sample batch");
+  html("span", "ships", h, `failed its pre-registered gate: verdicts stay scoped to the batches the model was calibrated on`);
+  const t = html("table", "", g);
+  t.innerHTML = `<thead><tr><th>check on batch 4 (${m.n} cells, 2019)</th><th class="num">result</th><th class="num">bar</th><th></th></tr></thead>`;
+  const tb = html("tbody", "", t);
+  for (const [name, val, bar, ok] of [
+    ["balanced accuracy at cycle 100", fmt(m.balanced_acc, 2), `≥ ${b.balanced_acc}`, o.checks.balanced_acc],
+    ["calibration error (ECE)", fmt(m.ece, 2), `≤ ${b.ece}`, o.checks.ece],
+    ["accuracy on the cells it called", `${Math.round(m.acc_on_called * 100)}%`, `≥ ${Math.round(b.acc_on_called * 100)}%`, o.checks.acc_on_called],
+    ["wrong verdicts, confirmed-call policy", String(m.policy_wrong), `≤ ${b.policy_wrong}`, o.checks.policy_wrong],
+    ["refused by the envelope guard", String(m.refused), `≤ ${b.refused}`, o.checks.refused],
+  ]) {
+    const r = html("tr", "", tb);
+    html("td", "", r, name); html("td", "num", r, val); html("td", "num", r, bar);
+    html("td", "", r).appendChild(check(ok, ok ? "pass" : "fail"));
+  }
+  const sev = q.cells.filter((c) => (c.split === "primary" || c.split === "secondary") && c.cycle_life);
+  const ok = o.points.filter((p) => !p.wrong), bad = o.points.filter((p) => p.wrong);
+  const c1 = html("div", "oos-chart", g); html("h3", "", c1, "P(pass) at cycle 100 against true life");
+  c1.appendChild(lineChart({
+    series: [
+      { x: sev.map((c) => c.cycle_life), y: sev.map((c) => c.p_pass), color: "var(--slate)", dots: true, r: 2.5, opacity: 0.55, label: "" },
+      { x: ok.map((p) => p.life), y: ok.map((p) => p.p), color: "var(--ink)", dots: true, label: "" },
+      { x: bad.map((p) => p.life), y: bad.map((p) => p.p), color: "var(--red)", dots: true, r: 3.5, label: "" },
+    ],
+    w: 560, h: 220, xlabel: "true cycle life", xlim: [400, 1400], ylim: [0, 1], yfmt: (v) => fmt(v, 1),
+    xticks: [400, 700, 1000, 1300], refX: [{ v: T(), label: "", color: "var(--ink-2)" }],
+    refY: [{ v: 0.5, label: "", color: "var(--ink-2)" }],
+    annotations: [{ x: T(), y: 0.12, text: `spec T = ${T()}`, color: "var(--ink-2)" }],
+  }));
+  html("p", "chart-caption", c1).innerHTML = `Gray: Severson test cells. Ink: batch 4. <b class="alarm">Red</b>: the ${bad.length} fail cells the policy would have pulled as passes.`;
+  const tr = html("div", "transfer-result", g);
+  html("b", "tr-num", tr, fmt(d.b4.spearman_logvar_life, 2));
+  html("span", "tr-lbl", tr, `rank correlation of ΔQ variance with life on batch 4 (${fmt(d.severson_test.spearman_logvar_life, 2)} on Severson): the signal still orders the cells`);
+  html("b", "tr-num bad", tr, `−${Math.round((1 - d.b4.life_ratio_true_over_pred) * 100)}%`);
+  html("span", "tr-lbl", tr, "batch 4 lives against what the Severson ΔQ-to-life map predicts: the level moved, silently, with every input inside the envelope");
+  html("p", "gate-note", g).innerHTML = `Batch 4 is Attia et al.'s 2019 validation batch: the same A123 cell, stored longer before testing. The model called <b>P(pass) = 1.00</b> on cells that died at 608–678 cycles. An input guard cannot see this kind of shift; only labels can. So a new batch is uncalibrated until some of its cells reach end of life. The ranking survives, which is what protocol selection needs.`;
 }
 
 /* ---------- science ---------- */

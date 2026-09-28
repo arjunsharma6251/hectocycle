@@ -700,6 +700,10 @@ details.withheld .kv { margin-top: 10px; opacity: 0.75; }
 .gate .gate-note b { color: var(--ink); }
 .small-multiples { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
 .small-multiples h3 { font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+.oos-chart { margin-top: 20px; }
+.oos-chart h3 { font-size: 12.5px; font-weight: 600; margin-bottom: 6px; }
+.chart-caption { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 4px; max-width: 46ch; }
+.chart-caption .alarm { color: var(--red); font-weight: 600; }
 .callable-table { width: auto; margin-top: 8px; }
 .callable-table td, .callable-table th { padding: 6px 12px 6px 0; font-size: 12.5px; }
 .transfer-result {
@@ -830,6 +834,7 @@ details.withheld .kv { margin-top: 10px; opacity: 0.75; }
   .pane:not(.hidden) .reading > :nth-child(3) { animation-delay: 0.1s; }
   .gates .gate { animation: sharpen 0.5s var(--ease-out) both; }
   .gates .gate:nth-child(2) { animation-delay: 0.08s; }
+  .gates .gate:nth-child(3) { animation-delay: 0.16s; }
 
   @keyframes draw-line { from { stroke-dashoffset: var(--len, 2000); } to { stroke-dashoffset: 0; } }
   @keyframes draw-ring { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
