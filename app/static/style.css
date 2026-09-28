@@ -740,7 +740,7 @@ details.withheld .kv { margin-top: 10px; opacity: 0.75; }
 .reading th { text-align: left; font-size: 12px; font-weight: 600; color: var(--ink-2); padding: 8px 10px; border-bottom: 1px solid var(--ink); }
 .reading td { padding: 10px; border-bottom: 1px solid var(--rule-soft); color: var(--ink-2); line-height: 1.5; vertical-align: top; }
 .reading td:first-child { color: var(--ink); font-weight: 500; }
-.reading .stats { display: flex; gap: 40px; flex-wrap: wrap; margin-top: 24px; }
+.reading .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 40px; margin-top: 24px; }
 .reading .stat b { display: block; font-family: var(--mono); font-size: 26px; font-weight: 600; line-height: 1.1; }
 .reading .stat span { display: block; font-size: 12.5px; color: var(--muted); margin-top: 4px; }
 .reading .refs p { font-size: 13px; color: var(--muted); }

@@ -12,6 +12,10 @@ A cockpit for cell qualification triage: **call pass/fail early — with honest 
 
 *The fleet as one control chart: every held-out cell is an interval bar on a shared 0–1 rail with the 0.5 decision line. A bar that clears the line is a call, a bar that crosses it is flagged KEEP TESTING, and the three cells the model refuses to score are red-hatched, the loudest marks on the page. Beneath the chart, the disposition line reports what the allocation policy does to cycler time: 60 of 83 channels freed, 0 wrong verdicts, 1,144 channel-days.*
 
+![Gates — the out-of-sample batch fails its pre-registered gate](docs/screenshots/gates.png)
+
+*Every feature earns its place through a gate written down before the result, and failures stay on the page. On Attia et al.'s 2019 batch, the same cell stored longer before testing, the model calls P(pass) = 1.00 on cells that die short of spec (red). The ΔQ(V) signal still ranks the cells, but their lives sit 18% below the old map: a silent shift no input guard can see, so verdicts stay scoped to calibrated batches.*
+
 ![Oxford cell — full quantitative LLI / LAM_pe / LAM_ne split](docs/screenshots/oxford-mode-split.png)
 
 *Degradation-mode attribution, earned tier by tier: with C/18.5 diagnostics and chemistry-matched half-cell references, the full LLI / LAM_pe / LAM_ne split passes the pre-registered stability gate on 8/8 cells (ρ = 1.00). Cells with only 0.5C data get a qualitative hint with its stability score, LFP cells are marked muted, and the UI never shows a number the gate didn't earn.*
